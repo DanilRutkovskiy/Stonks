@@ -2,10 +2,10 @@ class StockMarket(object):
     def __init__(self):
         pass
 
-    def addCoin(self, name):
+    def add_coin(self, name):
         pass
 
-    def getCoinCost(self, name):
+    def get_coin_cost(self, name):
         pass
 
     def start(self):

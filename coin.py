@@ -5,11 +5,5 @@ class Coin(object):
     def start(self):
         pass
 
-    def getCurrentCost(self):
+    def get_current_cost(self):
         pass
-
-    def getId(self):
-        return self.id
-
-    def setId(self, id):
-        self.id = id

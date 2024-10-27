@@ -10,12 +10,11 @@ class BingXCoinImpl(coin.Coin):
         self.ws = None
         self.channel = channel
         self.indicator = indicator
-        self.currentCost = 0
+        self.current_cost = 0
 
     def on_open(self, ws):
         #print('WebSocket connected')
-        subStr = json.dumps(self.channel)
-        ws.send(subStr)
+        ws.send(json.dumps(self.channel))
         #print("Subscribed to :", subStr)
 
     def on_data(self, ws, string, type, continue_flag):
@@ -28,7 +27,7 @@ class BingXCoinImpl(coin.Coin):
         compressed_data = gzip.GzipFile(fileobj=io.BytesIO(message), mode='rb')
         decompressed_data = compressed_data.read()
         utf8_data = decompressed_data.decode('utf-8')
-        self.currentCost = json.loads(utf8_data)["data"]["c"]
+        self.current_cost = json.loads(utf8_data)["data"]["c"]
         #print(self.indicator + ": " + self.currentCost)  # this is the message you need
         if "ping" in utf8_data:  # this is very important , if you receive 'Ping' you need to send 'pong'
             ws.send("Pong")
@@ -51,4 +50,4 @@ class BingXCoinImpl(coin.Coin):
         self.ws.run_forever()
 
     def getCurrentCost(self):
-        return self.currentCost
+        return self.current_cost
