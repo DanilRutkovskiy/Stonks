@@ -15,7 +15,7 @@ def bing_x_thread_function(_bing_x):
 if __name__ == "__main__":
 #Создаем первую биржу.
     bing_x = bingxstockmarket.BingXStockMarketImpl()
-    bing_x_thread = threading.Thread(target=bing_x_thread_function, args=(bing_x,), name="MainApplication")
+    bing_x_thread = threading.Thread(target=bing_x_thread_function, args=(bing_x,), name="BING X Thread")
     bing_x_thread.daemon = True
     bing_x_thread.start()
 #Здесь можно будет создать вторую и т.д.

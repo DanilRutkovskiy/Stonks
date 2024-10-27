@@ -5,6 +5,7 @@ import threading
 coinExp = coin.Coin
 class BingXStockMarketImpl(stockmarket.StockMarket):
     def __init__(self):
+        super().__init__()
         self.url = "wss://open-api-ws.bingx.com/market"
         self.coin_list = {}
         self.thread_coin_list = {}
@@ -37,7 +38,7 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
             coin_thread.join()
 
     def get_coin_cost(self, name):
-        return self.coin_list[name].getCurrentCost()
+        return self.coin_list[name].get_current_cost()
 
     def ready(self):
         return self.is_ready

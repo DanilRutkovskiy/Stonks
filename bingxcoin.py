@@ -6,6 +6,7 @@ import coin
 
 class BingXCoinImpl(coin.Coin):
     def __init__(self, url, channel, indicator):
+        super().__init__()
         self.url = url
         self.ws = None
         self.channel = channel
@@ -53,5 +54,5 @@ class BingXCoinImpl(coin.Coin):
         )
         self.ws.run_forever()
 
-    def getCurrentCost(self):
+    def get_current_cost(self):
         return self.current_cost
