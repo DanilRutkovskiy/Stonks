@@ -4,12 +4,11 @@ import threading
 import bingxcoin
 import stockmarket
 import time
-
-coins = {1:"BTC", 2:"ETH"}
+import coins_dict
 
 def bing_x_thread_function(_bing_x):
-    _bing_x.add_coin("BTC")
-    _bing_x.add_coin("ETH")
+    _bing_x.add_coin(coins_dict.get_btc_name())
+    _bing_x.add_coin(coins_dict.get_eth_name())
     _bing_x.start()#Эта функция блокирует дальнейшее выполнение потока, поэтому каждая биржа должна быть создана в отдельном
 
 if __name__ == "__main__":
@@ -23,7 +22,7 @@ if __name__ == "__main__":
 #Пока в качестве основной функции программы будем использовать этот цикл while
     while True:
         if bing_x.ready():
-            print("BINGX - BTC: " + str(bing_x.get_coin_cost("BTC")))
-            print("BINGX - ETH: " + str(bing_x.get_coin_cost("ETH")))
+            print("BINGX:" + coins_dict.get_btc_name() + ": " + str(bing_x.get_coin_cost(coins_dict.get_btc_name())))
+            print("BINGX:" + coins_dict.get_eth_name() + ": " + str(bing_x.get_coin_cost(coins_dict.get_eth_name())))
 
         time.sleep(1)

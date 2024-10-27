@@ -5,12 +5,11 @@ import io
 import coin
 
 class BingXCoinImpl(coin.Coin):
-    def __init__(self, url, channel, indicator):
+    def __init__(self, url, channel):
         super().__init__()
         self.url = url
         self.ws = None
         self.channel = channel
-        self.indicator = indicator
         self.current_cost = 0
 
     def on_open(self, ws):
@@ -33,7 +32,6 @@ class BingXCoinImpl(coin.Coin):
         cost_string = json_data.get("data", {}).get("c")
         if cost_string:
             self.current_cost = float(cost_string.replace(",", "."))
-        #print(self.indicator + ": " + self.currentCost)  # this is the message you need
         if "ping" in utf8_data:  # this is very important , if you receive 'Ping' you need to send 'pong'
             ws.send("Pong")
 

@@ -2,7 +2,8 @@ import stockmarket
 import coin
 import bingxcoin
 import threading
-coinExp = coin.Coin
+import coins_dict
+
 class BingXStockMarketImpl(stockmarket.StockMarket):
     def __init__(self):
         super().__init__()
@@ -13,22 +14,22 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
 
     def create_btc_coin(self):
         channel = {"id": "e745cd6d-d0f6-4a70-8d5a-043e4c741b40", "reqType": "sub", "dataType": "BTC-USDT@lastPrice"}
-        new_coin = bingxcoin.BingXCoinImpl(self.url, channel, "BING-X-BTC")
-        self.coin_list["BTC"] = new_coin
+        new_coin = bingxcoin.BingXCoinImpl(self.url, channel)
+        self.coin_list[coins_dict.get_btc_name()] = new_coin
         new_coin.start()
 
     def create_eth_coin(self):
         channel = {"id": "e745cd6d-d0f6-4a70-8d5a-043e4c741b40", "reqType": "sub", "dataType": "ETH-USDT@lastPrice"}
-        new_coin = bingxcoin.BingXCoinImpl(self.url, channel, "BING-X-ETX")
-        self.coin_list["ETH"] = new_coin
+        new_coin = bingxcoin.BingXCoinImpl(self.url, channel)
+        self.coin_list[coins_dict.get_eth_name()] = new_coin
         new_coin.start()
 
     def add_coin(self, name):
         thread_coin = 0
-        if name == "BTC":
-            thread_coin = threading.Thread(target=self.create_btc_coin, args=(), name="BTC")
-        elif name == "ETH":
-            thread_coin = threading.Thread(target=self.create_eth_coin, args=(), name="ETH")
+        if name == coins_dict.get_btc_name():
+            thread_coin = threading.Thread(target=self.create_btc_coin, args=(), name=coins_dict.get_btc_name())
+        elif name == coins_dict.get_eth_name():
+            thread_coin = threading.Thread(target=self.create_eth_coin, args=(), name=coins_dict.get_eth_name())
         self.thread_coin_list[name] = thread_coin
         thread_coin.start()
 
