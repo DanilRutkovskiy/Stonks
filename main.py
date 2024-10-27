@@ -19,9 +19,10 @@ if __name__ == "__main__":
     bing_x_thread.daemon = True
     bing_x_thread.start()
 
+#Пока в качестве основной функции программы будем использовать этот цикл while
     while True:
         if bing_x.ready():
-            print("BTC: " + str(bing_x.get_coin_cost("BTC")))
-            print("ETH: " + str(bing_x.get_coin_cost("ETH")))
+            print("BINGX - BTC: " + str(bing_x.get_coin_cost("BTC")))
+            print("BINGX - ETH: " + str(bing_x.get_coin_cost("ETH")))
 
         time.sleep(1)
