@@ -8,6 +8,7 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         self.url = "wss://open-api-ws.bingx.com/market"
         self.coin_list = {}
         self.thread_coin_list = {}
+        self.is_ready = False
 
     def create_btc_coin(self):
         channel = {"id": "e745cd6d-d0f6-4a70-8d5a-043e4c741b40", "reqType": "sub", "dataType": "BTC-USDT@lastPrice"}
@@ -31,8 +32,12 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         thread_coin.start()
 
     def start(self):
+        self.is_ready = True
         for coin_thread in self.thread_coin_list.values():
             coin_thread.join()
 
     def get_coin_cost(self, name):
         return self.coin_list[name].getCurrentCost()
+
+    def ready(self):
+        return self.is_ready

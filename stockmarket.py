@@ -10,3 +10,6 @@ class StockMarket(object):
 
     def start(self):
         pass
+
+    def ready(self):
+        return False
