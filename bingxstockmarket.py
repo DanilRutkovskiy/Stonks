@@ -1,5 +1,4 @@
 import stockmarket
-import coin
 import bingxcoin
 import threading
 import coins_dict
