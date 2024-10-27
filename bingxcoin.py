@@ -12,18 +12,18 @@ class BingXCoinImpl(coin.Coin):
         self.channel = channel
         self.current_cost = 0
 
-    def on_open(self, ws):
+    def _on_open(self, ws):
         #print('WebSocket connected')
         ws.send(json.dumps(self.channel))
         #print("Subscribed to :", subStr)
 
-    def on_data(self, ws, string, type, continue_flag):
+    def _on_data(self, ws, string, type, continue_flag):
         compressed_data = gzip.GzipFile(fileobj=io.BytesIO(string), mode='rb')
         decompressed_data = compressed_data.read()
         utf8_data = decompressed_data.decode('utf-8')
         #print(utf8_data)
 
-    def on_message(self, ws, message):
+    def _on_message(self, ws, message):
         compressed_data = gzip.GzipFile(fileobj=io.BytesIO(message), mode='rb')
         decompressed_data = compressed_data.read()
         utf8_data = decompressed_data.decode('utf-8')
@@ -35,20 +35,20 @@ class BingXCoinImpl(coin.Coin):
         if "ping" in utf8_data:  # this is very important , if you receive 'Ping' you need to send 'pong'
             ws.send("Pong")
 
-    def on_error(self, ws, error):
+    def _on_error(self, ws, error):
         print(error)
 
-    def on_close(self, ws, close_status_code, close_msg):
+    def _on_close(self, ws, close_status_code, close_msg):
         print('The connection is closed!')
 
     def start(self):
         self.ws = websocket.WebSocketApp(
             self.url,
-            on_open=self.on_open,
-            on_message=self.on_message,
-            #on_data=self.on_data,
-            on_error=self.on_error,
-            on_close=self.on_close,
+            on_open=self._on_open,
+            on_message=self._on_message,
+            #on_data=self._on_data,
+            on_error=self._on_error,
+            on_close=self._on_close,
         )
         self.ws.run_forever()
 
