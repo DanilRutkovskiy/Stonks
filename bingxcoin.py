@@ -27,7 +27,11 @@ class BingXCoinImpl(coin.Coin):
         compressed_data = gzip.GzipFile(fileobj=io.BytesIO(message), mode='rb')
         decompressed_data = compressed_data.read()
         utf8_data = decompressed_data.decode('utf-8')
-        self.current_cost = json.loads(utf8_data)["data"]["c"]
+
+        json_data = json.loads(utf8_data)
+        cost_string = json_data.get("data", {}).get("c")
+        if cost_string:
+            self.current_cost = float(cost_string.replace(",", "."))
         #print(self.indicator + ": " + self.currentCost)  # this is the message you need
         if "ping" in utf8_data:  # this is very important , if you receive 'Ping' you need to send 'pong'
             ws.send("Pong")
