@@ -11,6 +11,9 @@ class StockMarket(object):
     def start(self):
         pass
 
+    def place_order(self, name, quantity):
+        pass
+
 #Проверяет, готова ли биржа к работе - прошла ли инициализация.
     def ready(self):
         return False
