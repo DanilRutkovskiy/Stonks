@@ -6,6 +6,7 @@ import time
 import requests
 import hmac
 import json
+from datetime import timedelta, datetime
 from hashlib import sha256
 
 class BingXStockMarketImpl(stockmarket.StockMarket):
@@ -130,6 +131,22 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         }
         params_str = self._parse_param(params_map)
         data = self._send_request(method, path, params_str, payload)
+        print(data)
+
+    def get_withdraw_record(self):
+
+        payload = {}
+        path = '/openApi/api/v3/capital/withdraw/history'
+        method = "GET"
+        params_map = {
+            "coin": "BNB",
+            "endTime": self.timestapm,
+            "recvWindow": "60",
+            "startTime": int((datetime.fromtimestamp(self.timestapm / 1000) - timedelta(days=1)).timestamp() * 1000),
+            "timestamp": self.timestapm
+        }
+        params_str = self._parse_param(params_map)
+        data =  self._send_request(method, path, params_str, payload)
         print(data)
 
     def withdraw(self):

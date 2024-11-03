@@ -26,6 +26,9 @@ class StockMarket(object):
     def withdraw(self):
         pass
 
+    def get_withdraw_record(self):
+        pass
+
     def get_comission(self):
         pass
 

@@ -34,7 +34,7 @@ if __name__ == "__main__":
     #Пока в качестве основной функции программы будем использовать этот цикл while
     while True:
         if bing_x.ready() and bybit.ready():
-            bing_x.get_config()
+            bing_x.get_withdraw_record()
             #BTC
             # bing_x_btc_cost = bing_x.get_coin_cost(coins_dict.get_btc_name())
             # bing_x_btc_comission = bing_x_btc_cost * bing_x.get_comission()
