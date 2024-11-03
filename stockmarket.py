@@ -11,8 +11,24 @@ class StockMarket(object):
     def start(self):
         pass
 
-    def place_order(self, name, quantity):
+    def buy(self, name, quantity):
         pass
+
+    def sell(self, name, quantity):
+        pass
+
+    def get_address(self):
+        pass
+
+    def get_config(self):
+        pass
+
+    def withdraw(self):
+        pass
+
+    def get_comission(self):
+        pass
+
 
 #Проверяет, готова ли биржа к работе - прошла ли инициализация.
     def ready(self):

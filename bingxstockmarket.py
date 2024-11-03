@@ -19,6 +19,10 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         self.api_key = _api_key
         self.secret_key = _secret_key
         self.timestapm = self._get_server_time()
+        self.comission = 0.1
+
+    def get_comission(self):
+        return self.comission
 
     def add_coin(self, name):
         thread_coin = 0
@@ -40,7 +44,7 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
     def ready(self):
         return self.is_ready
 
-    def place_order(self, name, quantity):
+    def buy(self, name, quantity):
         payload = {}
         path = '/openApi/spot/v1/trade/order'
         method = "POST"
@@ -56,6 +60,9 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         }
         params_str = self._parse_param(params_map)
         return self._send_request(method, path, params_str, payload)
+
+    def sell(self, name, quantity):
+        pass
 
     def _create_btc_coin(self):
         channel = {"id": "e745cd6d-d0f6-4a70-8d5a-043e4c741b40", "reqType": "sub", "dataType": "BTC-USDT@lastPrice"}
@@ -98,3 +105,45 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         server_time = json_data.get("data", {}).get("serverTime")
         if server_time:
             return server_time
+
+    def get_address(self):
+        path = '/openApi/wallets/v1/capital/deposit/address'
+        method = "GET"
+        payload = {}
+        params_map = {
+            "coin": "USDT",
+            "limit": "1000",
+            "offset": "0",
+            "recvWindow": "0",
+            "timestamp": self.timestapm
+        }
+        params_str = self._parse_param(params_map)
+        data = self._send_request(method, path, params_str, payload)
+        print(data)
+
+    def get_config(self):
+        path = '/openApi/wallets/v1/capital/config/getall'
+        method = "GET"
+        payload = {}
+        params_map = {
+            "timestamp": self.timestapm
+        }
+        params_str = self._parse_param(params_map)
+        data = self._send_request(method, path, params_str, payload)
+        print(data)
+
+    def withdraw(self):
+        payload = {}
+        path = '/openApi/wallets/v1/capital/withdraw/apply'
+        method = "POST"
+        params_map = {
+            "address": "0x8****11",
+            "addressTag": "None",
+            "amount": "4998.0",
+            "coin": "USDT",
+            "network": "BEP20",
+            "timestamp": self.timestapm,
+            "walletType": "1"
+        }
+        params_str = self._parse_param(params_map)
+        return self._send_request(method, path, params_str, payload)
