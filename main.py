@@ -24,14 +24,14 @@ if __name__ == "__main__":
     bing_x_api_key = "kwdUd7o2o6Ka1DjjA1sbX4CDLZvtvXbVyIWQaY2QwnKvF7YLCm5LuQp2ej4vz8ZXFasmuavxjkemVmRy1Rw"
     bing_x_secret_key = "z0SB45M2fud5Tkx8u55dsJDzVjHEEqVp4qJKAAHjYGg0nWLPpq1sqXuKtN1EAQogVmtYMhZkDSqNSAvKw"
     bing_x = bingxstockmarket.BingXStockMarketImpl(bing_x_api_key, bing_x_secret_key)
-    bing_x_thread = threading.Thread(target=bing_x_thread_function, args=(bing_x,), name="BING X Thread")
-    bing_x_thread.daemon = True
-    bing_x_thread.start()
+    #bing_x_thread = threading.Thread(target=bing_x_thread_function, args=(bing_x,), name="BING X Thread")
+    #bing_x_thread.daemon = True
+    #bing_x_thread.start()
     #BY_BIT
     bybit = bybitstockmarket.ByBitStockMarketImpl()
-    bybit_thread = threading.Thread(target=bybit_thread_function, args=(bybit,), name="Bybit X Thread")
-    bybit_thread.daemon = True
-    bybit_thread.start()
+    #bybit_thread = threading.Thread(target=bybit_thread_function, args=(bybit,), name="Bybit X Thread")
+    #bybit_thread.daemon = True
+    #bybit_thread.start()
     #Здесь можно будет
 
     #Пока в качестве основной функции программы будем использовать этот цикл while
