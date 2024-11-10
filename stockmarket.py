@@ -23,7 +23,7 @@ class StockMarket(object):
     def get_config(self):
         pass
 
-    def withdraw(self):
+    def withdraw(self, adress, amount, coin, chain):
         pass
 
     def get_withdraw_record(self):
@@ -38,6 +38,14 @@ class StockMarket(object):
     def get_name(self):
         pass
 
+    def get_coin_list(self):
+        pass
+
+    def get_coin_networks(self, coin):
+        pass
+
+    def get_server_timestamp(self):
+        pass
 
 #Проверяет, готова ли биржа к работе - прошла ли инициализация.
     def ready(self):
