@@ -1,5 +1,5 @@
 class StockMarket(object):
-    def __init__(self, api_key, api_secret_key):
+    def __init__(self):
         pass
 
     def add_coin(self, name):
@@ -30,6 +30,12 @@ class StockMarket(object):
         pass
 
     def get_comission(self):
+        pass
+
+    def convert_coin_to_db_import(self, data):
+        pass
+
+    def get_name(self):
         pass
 
     def get_coin_list(self):

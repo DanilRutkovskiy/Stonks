@@ -1,0 +1,168 @@
+import psycopg2
+from psycopg2 import sql, OperationalError
+
+class StockMarketDb(object):
+    def __init__(self):
+        self.conn = 0
+        self._connect_to_db()
+
+    def import_coin(self, coin:{}, stock_name):
+        sql_to_add = ""
+        for k, v in coin.items():
+            sql_to_add = f"""
+                SELECT id INTO coinId
+                FROM coins
+                WHERE name = '{k}';
+                IF coinId IS NULL THEN
+                    INSERT INTO coins(name)
+                    VALUES('{k}') ON CONFLICT (name) DO NOTHING
+                    RETURNING id INTO coinId; 
+                END IF;
+            """
+
+            for network in v:
+                sql_to_add += f"""
+                             SELECT id INTO networkId
+                             FROM networks
+                             WHERE name = '{network["chain"]}';
+                             IF networkId IS NULL THEN
+                                 INSERT INTO networks(name)
+                                 VALUES ('{network["chain"]}') ON CONFLICT (name) DO NOTHING
+                                 RETURNING id INTO networkId; 
+                             END IF;
+                            """
+
+                sql_to_add += f""" INSERT INTO coin_network_for_stock(coin_id, network_id, stock_id, withdraw_fee, deposit_min, withdraw_min)
+                                  VALUES(coinId, networkId, stockId, '{network["withdrawFee"]}', '{network["depositMin"]}', '{network["withdrawMin"]}') 
+                                  ON CONFLICT(coin_id, network_id, stock_id) DO
+                                  UPDATE 
+                                  SET withdraw_fee = '{network["withdrawFee"]}', deposit_min = '{network["depositMin"]}', withdraw_min = '{network["withdrawMin"]}'; 
+                              """
+
+
+        my_sql = f"""DO
+                    $$
+                    DECLARE
+                        stockId BIGINT;
+                        coinId BIGINT;
+                        networkId BIGINT;
+                    BEGIN
+                         SELECT id INTO stockId 
+                         FROM stock 
+                         WHERE name = '{stock_name}';
+
+                         {sql_to_add}
+                         
+                         
+                    END;
+                    $$;"""
+
+        cursor = self.conn.cursor()
+
+        cursor.execute(my_sql)
+
+
+
+
+
+    def init_local_db(self, recreate = False):
+        try:
+            cursor = self.conn.cursor()
+            if recreate:
+                self._drop()
+
+            my_sql= """
+            CREATE TABLE IF NOT EXISTS coins
+            (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR UNIQUE
+            )
+            """
+            cursor.execute(my_sql)
+
+            my_sql = """
+            CREATE TABLE IF NOT EXISTS networks
+            (
+                id SERIAL PRIMARY KEY,
+	            name VARCHAR UNIQUE
+            )"""
+            cursor.execute(my_sql)
+
+            my_sql = """
+            CREATE TABLE IF NOT EXISTS stock
+            (
+            	id SERIAL PRIMARY KEY,
+	            name VARCHAR UNIQUE
+            )"""
+            cursor.execute(my_sql)
+
+            my_sql = """
+            CREATE TABLE IF NOT EXISTS coin_network_for_stock
+            (
+                id SERIAL PRIMARY KEY,
+	            coin_id BIGINT,
+	            network_id BIGINT,
+	            stock_id BIGINT,
+	            withdraw_fee VARCHAR,
+	            deposit_min VARCHAR,
+	            withdraw_min VARCHAR,
+	            FOREIGN KEY(coin_id) REFERENCES coins(id) ON DELETE CASCADE,
+	            FOREIGN KEY (network_id) REFERENCES networks(id) ON DELETE CASCADE,
+	            FOREIGN KEY (stock_id) REFERENCES stock(id) ON DELETE CASCADE,
+	            UNIQUE(coin_id, network_id, stock_id)
+            )"""
+            cursor.execute(my_sql)
+
+            cursor.execute(psycopg2.sql.SQL(f"INSERT INTO stock(name) VALUES('BINGX')"))
+            cursor.execute(psycopg2.sql.SQL(f"INSERT INTO stock(name) VALUES('BYBIT')"))
+
+
+
+        except psycopg2.OperationalError as e:
+            print(f"Error: {e}")
+
+
+    def _connect_to_db(self):
+        conn_params = {
+            "dbname": "stockBot",
+            "user": "postgres",
+            "password": "secret",
+            "host": "localhost",
+            "port": 5432
+        }
+        try:
+            self.conn = psycopg2.connect(**conn_params)
+            self.conn.autocommit = True
+        except psycopg2.OperationalError as e:
+            print(f"Error: {e}")
+
+    def _drop(self):
+        cursor = self.conn.cursor()
+        cursor.execute(psycopg2.sql.SQL("""DO
+                                        $$
+                                        DECLARE
+                                            obj_name text;
+                                        BEGIN
+                                            FOR obj_name IN
+                                                SELECT tablename FROM pg_tables
+                                                WHERE schemaname = 'public'
+                                            LOOP
+                                                EXECUTE format('DROP TABLE IF EXISTS %I CASCADE', obj_name);
+                                            END LOOP;
+
+                                            FOR obj_name IN
+                                                SELECT sequencename FROM pg_sequences
+                                                WHERE schemaname = 'public'
+                                            LOOP
+                                                EXECUTE format('DROP SEQUENCE IF EXISTS %I CASCADE', obj_name);
+                                            END LOOP;
+
+                                            FOR obj_name IN
+                                                SELECT viewname FROM pg_views
+                                                WHERE schemaname = 'public'
+                                            LOOP
+                                                EXECUTE format('DROP VIEW IF EXISTS %I CASCADE', obj_name);
+                                            END LOOP;
+                                        END;
+                                        $$;
+                                        """))
