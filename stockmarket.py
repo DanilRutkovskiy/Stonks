@@ -32,6 +32,12 @@ class StockMarket(object):
     def get_comission(self):
         pass
 
+    def convert_coin_to_db_import(self, data):
+        pass
+
+    def get_name(self):
+        pass
+
 
 #Проверяет, готова ли биржа к работе - прошла ли инициализация.
     def ready(self):

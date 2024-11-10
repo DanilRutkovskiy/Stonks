@@ -1,3 +1,5 @@
+from psycopg2 import OperationalError
+import json
 import bingxstockmarket
 import coin
 import threading
@@ -6,6 +8,7 @@ import stockmarket
 import time
 import coins_dict
 import bybitstockmarket
+import database
 
 def bing_x_thread_function(_bing_x):
     _bing_x.add_coin(coins_dict.get_btc_name())
@@ -32,9 +35,17 @@ if __name__ == "__main__":
     #Здесь можно будет
 
     #Пока в качестве основной функции программы будем использовать этот цикл while
+
+    db = database.StockMarketDb()
+    db.init_local_db(True)
     while True:
         if bing_x.ready() and bybit.ready():
-            bing_x.get_withdraw_record()
+            data = bing_x.get_config()
+            json_data = json.loads(data)
+            for obj in json_data["data"]:
+                db.import_coin(bing_x.convert_coin_to_db_import(obj), bing_x.get_name())
+
+
             #BTC
             # bing_x_btc_cost = bing_x.get_coin_cost(coins_dict.get_btc_name())
             # bing_x_btc_comission = bing_x_btc_cost * bing_x.get_comission()
@@ -58,4 +69,4 @@ if __name__ == "__main__":
             #             pass
             #print("BINGX:" + coins_dict.get_btc_name() + ": " + str(bing_x.get_coin_cost(coins_dict.get_btc_name())))
             #print("Bybit:" + coins_dict.get_btc_name() + ": " + str(bybit.get_coin_cost(coins_dict.get_btc_name())))
-        time.sleep(1)
+        #time.sleep(1)
