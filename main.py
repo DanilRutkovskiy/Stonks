@@ -28,7 +28,6 @@ if __name__ == "__main__":
     # bing_x_thread.daemon = True
     # bing_x_thread.start()
     #BY_BIT
-    bybit = bybitstockmarket.ByBitStockMarketImpl()
     # bybit_thread = threading.Thread(target=bybit_thread_function, args=(bybit,), name="Bybit X Thread")
     # bybit_thread.daemon = True
     # bybit_thread.start()
@@ -38,21 +37,17 @@ if __name__ == "__main__":
     bybit.create_session()
     bybit.get_coin_list()
 
-    for coin in bybit.coin_full_list['name'].unique():
-        test = bybit.get_coin_networks(coin)
-        print(test)
-    #Здесь можно будет
-
     #Пока в качестве основной функции программы будем использовать этот цикл while
-
     db = database.StockMarketDb()
     db.init_local_db(True)
-    while True:
-        if bing_x.ready() and bybit.ready():
-            data = bing_x.get_config()
-            json_data = json.loads(data)
-            for obj in json_data["data"]:
-                db.import_coin(bing_x.convert_coin_to_db_import(obj), bing_x.get_name())
+    #while True:
+        #if bing_x.ready() and bybit.ready():
+    data = bing_x.get_config()
+    json_data = json.loads(data)
+    for obj in json_data["data"]:
+        db.import_coin(bing_x.convert_coin_to_db_import(obj), bing_x.get_name())
+    for coin in bybit.coin_full_list['name'].unique():
+         db.import_coin({coin: bybit.get_coin_networks(coin)}, bybit.get_name())
 
 
 
