@@ -15,13 +15,14 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         self.name = 'BingX'
         self.socket_url = "wss://open-api-ws.bingx.com/market"
         self.api_url = "https://open-api.bingx.com"
-        self.coin_list = {}
+        self.coin_list = []
         self.thread_coin_list = {}
         self.is_ready = False
         self.api_key = _api_key
         self.secret_key = _secret_key
         self.timestapm = self._get_server_time()
         self.commission = 0.1
+        self.coin_map = {}
 
     def get_comission(self):
         return self.comission
@@ -39,25 +40,14 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         return {coin_name: network_list_new}
 
 
-    def add_coin(self, name_list, _all=True):
+    def add_coin(self, coin_list):
 
-        if _all == True:
-            for v, k in self.coin_list.items():
-                thread_coin = threading.Thread(target=self._create_btc_coin, args=(), name=coins_dict.get_btc_name())
-                self.thread_coin_list[k] = thread_coin
-                thread_coin.start()
-        else:
-            for v, k in name_list.items():
-                thread_coin = threading.Thread(target=self._create_btc_coin, args=(), name=coins_dict.get_btc_name())
-                self.thread_coin_list[k] = thread_coin
-                thread_coin.start()
-        # thread_coin = 0
-        # if name == coins_dict.get_btc_name():
-        #     thread_coin = threading.Thread(target=self._create_btc_coin, args=(), name=coins_dict.get_btc_name())
-        # elif name == coins_dict.get_eth_name():
-        #     thread_coin = threading.Thread(target=self._create_eth_coin, args=(), name=coins_dict.get_eth_name())
-        # self.thread_coin_list[name] = thread_coin
-        # thread_coin.start()
+        self.coin_list = coin_list
+
+        for k in coin_list:
+            thread_coin = threading.Thread(target=self._create_coin, args=(k,), name=k)
+            self.thread_coin_list[k] = thread_coin
+            thread_coin.start()
 
     def start(self):
         self.is_ready = True
@@ -65,7 +55,7 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
             coin_thread.join()
 
     def get_coin_cost(self, name):
-        return self.coin_list[name].get_current_cost()
+        return self.coin_map[name].get_current_cost()
 
     def ready(self):
         return self.is_ready
@@ -93,16 +83,10 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
     def sell(self, name, quantity):
         pass
 
-    def _create_btc_coin(self):
-        channel = {"id": "e745cd6d-d0f6-4a70-8d5a-043e4c741b40", "reqType": "sub", "dataType": "BTC-USDT@lastPrice"}
-        new_coin = bingxcoin.BingXCoinImpl(self.socket_url, channel)
-        self.coin_list[coins_dict.get_btc_name()] = new_coin
-        new_coin.start()
-
-    def _create_eth_coin(self):
-        channel = {"id": "e745cd6d-d0f6-4a70-8d5a-043e4c741b40", "reqType": "sub", "dataType": "ETH-USDT@lastPrice"}
-        new_coin = bingxcoin.BingXCoinImpl(self.socket_url, channel)
-        self.coin_list[coins_dict.get_eth_name()] = new_coin
+    def _create_coin(self, coin):
+        channel = {"id": "e745cd6d-d0f6-4a70-8d5a-043e4c741b40", "reqType": "sub", "dataType": f"{coin}-USDT@lastPrice"}
+        new_coin = bingxcoin.BingXCoinImpl(self.socket_url, channel, coin)
+        self.coin_map[coin] = new_coin
         new_coin.start()
 
     def _get_sign(self, api_secret, payload):

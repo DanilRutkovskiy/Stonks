@@ -7,3 +7,6 @@ class Coin(object):
 
     def get_current_cost(self):
         pass
+
+    def get_min_network(self):
+        pass

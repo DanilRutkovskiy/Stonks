@@ -7,18 +7,18 @@ class ByBitCoinImpl(coin.Coin):
         self.ws = None
         self.current_cost = 0
         self.coin_name = coin_name
-        self.channel_type = "spot"
+        self.channel_type = "linear"
         self.commission = 0.1
 
     def handle_message(self, message):
         self.update_cost(message)
 
     def update_cost(self, new_cost):
-        cost = new_cost['data']['usdIndexPrice']
+        cost = new_cost['data']['markPrice']
         if cost == '':
             self.current_cost = 10000000
         else:
-            self.current_cost = float(new_cost['data']['usdIndexPrice'])
+            self.current_cost = float(new_cost['data']['markPrice'])
 
     def start(self):
         ws = WebSocket(
@@ -26,7 +26,7 @@ class ByBitCoinImpl(coin.Coin):
             channel_type=self.channel_type,
         )
         ws.ticker_stream(
-            symbol=self.coin_name,
+            symbol=self.coin_name+'USDT',
             callback=self.handle_message
         )
         self.ws.run_forever()

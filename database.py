@@ -1,5 +1,6 @@
 import psycopg2
 from psycopg2 import sql, OperationalError
+import pandas
 
 class StockMarketDb(object):
     def __init__(self):
@@ -62,8 +63,37 @@ class StockMarketDb(object):
         cursor.execute(my_sql)
 
 
+    def get_coin_list_for_stock(self, stock):
+        cursor = self.conn.cursor()
 
+        my_sql = f"""SELECT DISTINCT(c.name) FROM coin_network_for_stock as cnfs
+                    JOIN stock AS s ON cnfs.stock_id = s.id
+                    JOIN coins AS c ON cnfs.coin_id = c.id
+                    WHERE s.name = '{stock}'"""
 
+        df = pandas.read_sql(my_sql, self.conn)
+
+        return df['name'].values.tolist()
+
+    def get_common_coin_list(self):
+
+        my_sql = f"""with bingx_coins as (
+                     select distinct(c.name) from coin_network_for_stock as cnfs
+                     join stock as s on cnfs.stock_id = s.id
+                     join coins as c on cnfs.coin_id = c.id
+                     where s.name = 'BINGX'), 
+                     bybit_coins as (
+                     select distinct(c.name) from coin_network_for_stock as cnfs
+                     join stock as s on cnfs.stock_id = s.id
+                     join coins as c on cnfs.coin_id = c.id
+                     where s.name = 'BYBIT')
+                     select bic.name
+                     from bybit_coins as byc
+                     join bingx_coins as bic on byc.name = bic.name"""
+
+        df = pandas.read_sql(my_sql, self.conn)
+
+        return df['name'].values.tolist()
 
     def init_local_db(self, recreate = False):
         try:

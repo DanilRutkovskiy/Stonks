@@ -9,7 +9,7 @@ import time
 import coins_dict
 import bybitstockmarket
 import database
-from Stonks.app import Application
+from app import Application
 
 
 def bing_x_thread_function(_bing_x):
@@ -23,13 +23,24 @@ def bybit_thread_function(_bybit):
 
 
 if __name__ == "__main__":
+
+    db = database.StockMarketDb()
+    coin_list = db.get_common_coin_list()
+
     app = Application()
 
-    app.init_bybit()
     app.init_bingx()
+    app.init_bybit()
 
-    app.track_coin(app.stock_ex_pool, 'BTC')
-    # app.show_spot_dif()
+
+    app.bybit_ex.get_coin_list()
+    pass
+
+    # app.bingx_ex.coin_list = coin_list[:100]
+    # app.bybit_ex.coin_list = coin_list[:100]
+    #
+    app.track_coin(['ZRX'])
+    app.show_spot_dif()
 
 
     # bing_x_api_key = "kwdUd7o2o6Ka1DjjA1sbX4CDLZvtvXbVyIWQaY2QwnKvF7YLCm5LuQp2ej4vz8ZXFasmuavxjkemVmRy1Rw"

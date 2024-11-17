@@ -13,31 +13,29 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
         self.name = 'ByBit'
         self.api_key = api_key
         self.api_secret_key = api_secret_key
-        self.coin_list = {}
+        self.coin_list = []
         self.thread_coin_list = {}
         self.session = None
         self.is_ready = False
         # URL для публичного API Bybit по торговым парам на споте
-        self.coin_list_url = "https://api.bybit.com/spot/v3/public/symbols"
+        self.coin_list_url = "https://api.bybit.com/v2/public/symbols"
         self.coin_full_list = []
+        self.coin_map = {}
 
-    def _create_coin(self, coin_name, coin_index):
-        new_coin = bybitcoin.ByBitCoinImpl(coin_index)
-        self.coin_list[coin_name] = new_coin
+    def _create_coin(self, coin_name):
+        new_coin = bybitcoin.ByBitCoinImpl(coin_name)
+        self.coin_map[coin_name] = new_coin
         new_coin.start()
 
-    def add_coin(self, name_list={}, _all=True):
+    def add_coin(self, coin_list):
 
-        if _all == True:
-            for v, k in self.coin_list.items():
-                thread_coin = threading.Thread(target=self._create_coin, args=(v, k,), name=k)
-                self.thread_coin_list[k] = thread_coin
-                thread_coin.start()
-        else:
-            for v, k in name_list.items():
-                thread_coin = threading.Thread(target=self._create_coin, args=(v, k,), name=k)
-                self.thread_coin_list[k] = thread_coin
-                thread_coin.start()
+        self.coin_list = coin_list
+
+        for k in coin_list:
+            thread_coin = threading.Thread(target=self._create_coin, args=(k,), name=k)
+            self.thread_coin_list[k] = thread_coin
+            thread_coin.start()
+
 
     def start(self):
         self.is_ready = True
@@ -46,7 +44,7 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
 
     def get_coin_list(self):
         resp_json = requests.get(self.coin_list_url).json()
-        self.coin_full_list = pd.DataFrame([{'alias': info['alias'], 'name': info['baseCoin']} for info in resp_json['result']['list']])
+        self.coin_full_list = pd.DataFrame([{'alias': info['alias'], 'name': info['base_currency']} for info in resp_json['result']])
 
     def get_coin_networks(self, coin):
         data = self.session.get_coin_info(coin=coin)
@@ -65,7 +63,7 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
         self.session = HTTP(testnet=False,api_key=self.api_key,api_secret=self.api_secret_key)
 
     def get_coin_cost(self, name):
-        return self.coin_list[name].get_current_cost()
+        return self.coin_map[name].get_current_cost()
 
     def withdraw(self, address, amount, coin, chain):
         self.session.withdraw(

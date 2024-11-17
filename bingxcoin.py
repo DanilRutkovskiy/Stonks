@@ -3,15 +3,17 @@ import websocket
 import gzip
 import io
 import coin
+import database
 
 class BingXCoinImpl(coin.Coin):
-    def __init__(self, url, channel):
+    def __init__(self, url, channel, name):
         super().__init__()
         self.url = url
         self.ws = None
         self.channel = channel
         self.current_cost = 0
         self.commission = 0.1
+        self.name = name
 
     def _on_open(self, ws):
         #print('WebSocket connected')
@@ -55,3 +57,7 @@ class BingXCoinImpl(coin.Coin):
 
     def get_current_cost(self):
         return float(self.current_cost)
+
+    def git_min_network(self):
+        db = database.StockMarketDb()
+        coin_list = db.get
