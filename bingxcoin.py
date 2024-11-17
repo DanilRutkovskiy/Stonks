@@ -11,6 +11,7 @@ class BingXCoinImpl(coin.Coin):
         self.ws = None
         self.channel = channel
         self.current_cost = 0
+        self.commission = 0.1
 
     def _on_open(self, ws):
         #print('WebSocket connected')
@@ -53,4 +54,4 @@ class BingXCoinImpl(coin.Coin):
         self.ws.run_forever()
 
     def get_current_cost(self):
-        return self.current_cost
+        return float(self.current_cost)

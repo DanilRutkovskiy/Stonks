@@ -8,12 +8,17 @@ class ByBitCoinImpl(coin.Coin):
         self.current_cost = 0
         self.coin_name = coin_name
         self.channel_type = "spot"
+        self.commission = 0.1
 
     def handle_message(self, message):
         self.update_cost(message)
 
     def update_cost(self, new_cost):
-        self.current_cost = new_cost['data']['usdIndexPrice']
+        cost = new_cost['data']['usdIndexPrice']
+        if cost == '':
+            self.current_cost = 10000000
+        else:
+            self.current_cost = float(new_cost['data']['usdIndexPrice'])
 
     def start(self):
         ws = WebSocket(

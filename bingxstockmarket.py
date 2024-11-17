@@ -12,6 +12,7 @@ from hashlib import sha256
 class BingXStockMarketImpl(stockmarket.StockMarket):
     def __init__(self, _api_key, _secret_key):
         super().__init__()
+        self.name = 'BingX'
         self.socket_url = "wss://open-api-ws.bingx.com/market"
         self.api_url = "https://open-api.bingx.com"
         self.coin_list = {}
@@ -20,7 +21,7 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         self.api_key = _api_key
         self.secret_key = _secret_key
         self.timestapm = self._get_server_time()
-        self.comission = 0.1
+        self.commission = 0.1
 
     def get_comission(self):
         return self.comission
@@ -38,14 +39,25 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         return {coin_name: network_list_new}
 
 
-    def add_coin(self, name):
-        thread_coin = 0
-        if name == coins_dict.get_btc_name():
-            thread_coin = threading.Thread(target=self._create_btc_coin, args=(), name=coins_dict.get_btc_name())
-        elif name == coins_dict.get_eth_name():
-            thread_coin = threading.Thread(target=self._create_eth_coin, args=(), name=coins_dict.get_eth_name())
-        self.thread_coin_list[name] = thread_coin
-        thread_coin.start()
+    def add_coin(self, name_list, _all=True):
+
+        if _all == True:
+            for v, k in self.coin_list.items():
+                thread_coin = threading.Thread(target=self._create_btc_coin, args=(), name=coins_dict.get_btc_name())
+                self.thread_coin_list[k] = thread_coin
+                thread_coin.start()
+        else:
+            for v, k in name_list.items():
+                thread_coin = threading.Thread(target=self._create_btc_coin, args=(), name=coins_dict.get_btc_name())
+                self.thread_coin_list[k] = thread_coin
+                thread_coin.start()
+        # thread_coin = 0
+        # if name == coins_dict.get_btc_name():
+        #     thread_coin = threading.Thread(target=self._create_btc_coin, args=(), name=coins_dict.get_btc_name())
+        # elif name == coins_dict.get_eth_name():
+        #     thread_coin = threading.Thread(target=self._create_eth_coin, args=(), name=coins_dict.get_eth_name())
+        # self.thread_coin_list[name] = thread_coin
+        # thread_coin.start()
 
     def start(self):
         self.is_ready = True

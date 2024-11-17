@@ -6,9 +6,11 @@ import threading
 import requests
 import pandas as pd
 
+
 class ByBitStockMarketImpl(stockmarket.StockMarket):
     def __init__(self, api_key, api_secret_key):
         super().__init__()
+        self.name = 'ByBit'
         self.api_key = api_key
         self.api_secret_key = api_secret_key
         self.coin_list = {}
@@ -75,7 +77,6 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
             forceChain=0,
             accountType="FUND",
         )
-
 
     def ready(self):
         return self.is_ready
