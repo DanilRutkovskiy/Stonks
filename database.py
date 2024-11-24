@@ -1,6 +1,8 @@
 import psycopg2
 from psycopg2 import sql, OperationalError
+from psycopg2.extras import DictCursor
 import pandas
+from Structs.network import network
 
 class StockMarketDb(object):
     def __init__(self):
@@ -40,7 +42,6 @@ class StockMarketDb(object):
                                   SET withdraw_fee = '{network["withdrawFee"]}', deposit_min = '{network["depositMin"]}', withdraw_min = '{network["withdrawMin"]}'; 
                               """
 
-
         my_sql = f"""DO
                     $$
                     DECLARE
@@ -61,6 +62,30 @@ class StockMarketDb(object):
         cursor = self.conn.cursor()
 
         cursor.execute(my_sql)
+
+
+    def get_best_network_for_coin(self, coin_name, stock_name):
+        my_sql = f"""SELECT cnfs.deposit_min, cnfs.withdraw_min, cnfs.withdraw_fee, n.name
+                     FROM coin_network_for_stock AS cnfs
+                     JOIN stock AS s ON cnfs.stock_id = s.id
+                     JOIN coins As c ON cnfs.coin_id = c.id
+                     JOIN networks AS n ON cnfs.network_id = n.id
+                     WHERE c.name = '{coin_name}' AND s.name = '{stock_name}'
+                     ORDER BY withdraw_fee::FLOAT
+                     LIMIT 1"""
+
+        cursor = self.conn.cursor(cursor_factory=DictCursor)
+        cursor.execute(my_sql)
+        record = cursor.fetchone()
+
+        if record:
+            to_return = network(deposit_min = record["deposit_min"],
+                                withdraw_min = record["withdraw_min"],
+                                withdraw_fee = record["withdraw_fee"],
+                                name = record["name"])
+            return to_return
+        else:
+            print(f'function get_best_network_for_coin {coin_name} can not get data')
 
 
     def get_coin_list_for_stock(self, stock):

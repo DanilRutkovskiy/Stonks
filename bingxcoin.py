@@ -4,6 +4,7 @@ import gzip
 import io
 import coin
 import database
+from Structs.network import network
 
 class BingXCoinImpl(coin.Coin):
     def __init__(self, url, channel, name):
@@ -14,6 +15,9 @@ class BingXCoinImpl(coin.Coin):
         self.current_cost = 0
         self.commission = 0.1
         self.name = name
+        self.coin_network:network
+
+        self._load_network_data()
 
     def _on_open(self, ws):
         #print('WebSocket connected')
@@ -43,6 +47,10 @@ class BingXCoinImpl(coin.Coin):
 
     def _on_close(self, ws, close_status_code, close_msg):
         print('The connection is closed!')
+
+    def _load_network_data(self):
+        db = database.StockMarketDb()
+        self.coin_network = db.get_best_network_for_coin(self.name, 'BINGX')
 
     def start(self):
         self.ws = websocket.WebSocketApp(

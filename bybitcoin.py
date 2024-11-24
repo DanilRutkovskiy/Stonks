@@ -1,5 +1,7 @@
 import coin
 from pybit.unified_trading import WebSocket
+import database
+from Structs.network import network
 
 class ByBitCoinImpl(coin.Coin):
     def __init__(self, coin_name):
@@ -9,6 +11,9 @@ class ByBitCoinImpl(coin.Coin):
         self.coin_name = coin_name
         self.channel_type = "linear"
         self.commission = 0.1
+        self.coin_network:network
+
+        self._load_network_data()
 
     def handle_message(self, message):
         self.update_cost(message)
@@ -19,6 +24,10 @@ class ByBitCoinImpl(coin.Coin):
             self.current_cost = 10000000
         else:
             self.current_cost = float(new_cost['data']['markPrice'])
+
+    def _load_network_data(self):
+        db = database.StockMarketDb()
+        self.coin_network = db.get_best_network_for_coin(self.coin_name, 'BYBIT')
 
     def start(self):
         ws = WebSocket(

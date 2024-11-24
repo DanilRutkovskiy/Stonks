@@ -22,6 +22,7 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
         self.coin_full_list = []
         self.coin_map = {}
 
+
     def _create_coin(self, coin_name):
         new_coin = bybitcoin.ByBitCoinImpl(coin_name)
         self.coin_map[coin_name] = new_coin
