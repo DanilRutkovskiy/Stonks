@@ -25,22 +25,18 @@ def bybit_thread_function(_bybit):
 if __name__ == "__main__":
 
     db = database.StockMarketDb()
-    coin_list = db.get_common_coin_list()
+    db.init_local_db()
 
+    # coin_list = db.get_common_coin_list()
     app = Application()
-
     app.init_bingx()
     app.init_bybit()
 
-
-    app.bybit_ex.get_coin_list()
-    pass
-
-    # app.bingx_ex.coin_list = coin_list[:100]
-    # app.bybit_ex.coin_list = coin_list[:100]
-    #
-    app.track_coin(['ZRX'])
-    app.show_spot_dif()
+    # # app.bingx_ex.coin_list = coin_list[:100]
+    # # app.bybit_ex.coin_list = coin_list[:100]
+    # #
+    # app.track_coin(['ZRX'])
+    # app.show_spot_dif()
 
 
     # bing_x_api_key = "kwdUd7o2o6Ka1DjjA1sbX4CDLZvtvXbVyIWQaY2QwnKvF7YLCm5LuQp2ej4vz8ZXFasmuavxjkemVmRy1Rw"
@@ -63,28 +59,3 @@ if __name__ == "__main__":
     # bybit.create_session()
     # bybit.get_coin_list()
 
-
-            #BTC
-            # bing_x_btc_cost = bing_x.get_coin_cost(coins_dict.get_btc_name())
-            # bing_x_btc_comission = bing_x_btc_cost * bing_x.get_comission()
-            # bybit_btc_cost = bybit.get_coin_cost(coins_dict.get_btc_name())
-            # bybit_btc_comission = bybit_btc_cost * bybit.get_comission()
-            # diff = bing_x_btc_cost - bybit_btc_cost
-            # if abs(diff) > abs(bing_x_btc_comission + bybit_btc_comission):
-            #     if diff > 0: #Значит на bing_x цена выше, покупаем на bybit
-            #         if bybit.buy(coins_dict.get_btc_name(), 10000):
-            #             #Здесь идет логика перевода монет
-            #             pass
-            #         if bing_x.sell(coins_dict.get_btc_name(), 10000):
-            #             #Здесь идет логика об удачном завершении сделки и фиксация результата в БД
-            #             pass
-            #     else:
-            #         if bing_x.buy(coins_dict.get_btc_name(), 10000):
-            #             # Здесь идет логика перевода монет
-            #             pass
-            #         if bybit.sell(coins_dict.get_btc_name(), 10000):
-            #             # Здесь идет логика об удачном завершении сделки и фиксация результата в БД
-            #             pass
-            #print("BINGX:" + coins_dict.get_btc_name() + ": " + str(bing_x.get_coin_cost(coins_dict.get_btc_name())))
-            #print("Bybit:" + coins_dict.get_btc_name() + ": " + str(bybit.get_coin_cost(coins_dict.get_btc_name())))
-        #time.sleep(1)
