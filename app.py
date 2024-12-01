@@ -130,12 +130,4 @@ class Application:
 
         print('Ордер на продажу выполнен')
 
-
         pass
-
-
-
-
-
-
-

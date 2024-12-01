@@ -29,6 +29,4 @@ if __name__ == "__main__":
     app.init_bingx()
     app.init_bybit()
 
-    app.bybit_ex.place_order(0.5925, 2, 'ZRXUSDT', 'Buy')
-
-
+    # app.bybit_ex.place_order(0.5925, 2, 'ZRXUSDT', 'Buy')
