@@ -55,7 +55,7 @@ class StockMarketDb(object):
 
                          {sql_to_add}
                          
-                         
+
                     END;
                     $$;"""
 

@@ -163,21 +163,66 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         data =  self._send_request(method, path, params_str, payload)
         print(data)
 
-    def withdraw(self):
+    def withdraw(self, address, amount, coin_name, network_name):
         payload = {}
         path = '/openApi/wallets/v1/capital/withdraw/apply'
         method = "POST"
         params_map = {
-            "address": "0x8****11",
-            "addressTag": "None",
-            "amount": "4998.0",
-            "coin": "USDT",
-            "network": "BEP20",
+            "address": address,
+            "amount": amount,
+            "coin": coin_name,
+            "network": network_name,
             "timestamp": self.timestapm,
             "walletType": "1"
         }
+        #TODO Возможные ошибки - не удалось выполнить запрос к бирже(приходит JSON без data)
         params_str = self._parse_param(params_map)
-        return self._send_request(method, path, params_str, payload)
+        data = self._send_request(method, path, params_str, payload)
+        json_data = json.loads(data)
+        id = json_data.get("data", {}).get("id")
+        return id
 
+    def place_order(self, price, qty, symbol, side):
+        payload = {}
+        path = "/openApi/spot/v1/trade/order"
+        method = "POST"
+        params_map = {
+            "type": "LIMIT",
+            "symbol": symbol,#format BTC-USDT
+            "side": side,
+            "quantity": qty,
+            "newClientOrderId": "",
+            "price": price,
+            "recvWindow": 1000,
+            "timeInForce": "GTC",
+            "timestamp": self.timestapm
+        }
+        #TODO Возможные ошибки - не удалось выполнить запрос к бирже(приходит JSON без data)
+        params_str = self._parse_param(params_map)
+        data = self._send_request(method, path, params_str, payload)
+        json_data = json.loads(data)
+        order_id = json_data.get("data", {}).get("orderId")
+        return order_id
 
-    #TODO Создать функцию для заполнения БД по этой бирже (аналог есть в классе bybitstockmarket.py)
+    def check_order(self, symbol, order_id):
+        payload = {}
+        path = '/openApi/spot/v1/trade/query'
+        method = "GET"
+        params_map = {
+            "symbol": symbol,
+            "orderId": order_id,
+            "timestamp": self.timestapm
+        }
+        #TODO Возможные ошибки - не удалось выполнить запрос к бирже(приходит JSON без data)
+        params_str = self._parse_param(params_map)
+        data = self._send_request(method, path, params_str, payload)
+        json_data = json.loads(data)
+        status = json_data.get("data", {}).get("status")
+        return status == "FILLED"
+
+    def import_stock_data_to_db(self, db):
+        data = self.get_config()
+        #TODO Проверить, что data пришла корректная
+        json_data = json.loads(data)
+        for obj in json_data["data"]:
+            db.import_coin(self.convert_coin_to_db_import(obj), self.get_name())
