@@ -163,21 +163,24 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         data =  self._send_request(method, path, params_str, payload)
         print(data)
 
-    def withdraw(self):
+    def withdraw(self, address, amount, coin_name, network_name):
         payload = {}
         path = '/openApi/wallets/v1/capital/withdraw/apply'
         method = "POST"
         params_map = {
-            "address": "0x8****11",
-            "addressTag": "None",
-            "amount": "4998.0",
-            "coin": "USDT",
-            "network": "BEP20",
+            "address": address,
+            "amount": amount,
+            "coin": coin_name,
+            "network": network_name,
             "timestamp": self.timestapm,
             "walletType": "1"
         }
+        #TODO Возможные ошибки - не удалось выполнить запрос к бирже(приходит JSON без data)
         params_str = self._parse_param(params_map)
-        return self._send_request(method, path, params_str, payload)
+        data = self._send_request(method, path, params_str, payload)
+        json_data = json.loads(data)
+        id = json_data.get("data", {}).get("id")
+        return id
 
     def place_order(self, price, qty, symbol, side):
         payload = {}
