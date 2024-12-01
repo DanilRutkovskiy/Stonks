@@ -1,14 +1,4 @@
-from psycopg2 import OperationalError
-import json
-import bingxstockmarket
-import coin
-import threading
-import bingxcoin
-import stockmarket
-import time
 import coins_dict
-import bybitstockmarket
-import database
 from app import Application
 
 
@@ -28,7 +18,8 @@ if __name__ == "__main__":
     app = Application()
     app.init_bingx()
     app.init_bybit()
-
-    app.bybit_ex.place_order(0.5925, 2, 'ZRXUSDT', 'Buy')
+    app.track_coin(['ZRX'])
+    app.show_spot_dif()
+    # app.bybit_ex.place_order(0.5925, 2, 'ZRXUSDT', 'BUY')
 
 

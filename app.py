@@ -99,34 +99,50 @@ class Application:
 
         sell_buy_prc = abs(1 - max_price / min_price) * 100
         sell_buy = max_price - min_price
-        sbp_fee_corr = min_price * float(min_coin_network.withdraw_fee)
-        close_fee = (sbp_fee_corr + min_coin_commission + max_coin_commission) / sell_buy
+        if sell_buy != 0:
+            sbp_fee_corr = min_price * float(min_coin_network.withdraw_fee)
+            close_fee = (sbp_fee_corr) / sell_buy
 
-        msg = f"""
-                Покупаем с: {min_name}, Цена: {min_price}, Продаем на {max_name}, Цена: {max_price}
-                Абсолютная разница: {sell_buy}, Процентная разница: {sell_buy_prc}, 
-                Кол-во монет для перекрытия Network Fee и коммисию за покупку/продажу: {close_fee}
-                Входная стоимость (Цена монет для перекрытия Network Fee и коммисию за покупку/продажу): {close_fee * min_price}
-                """
+            msg = f"""
+                    Покупаем с: {min_name}, Цена: {min_price}, Продаем на {max_name}, Цена: {max_price}
+                    Абсолютная разница: {sell_buy}, Процентная разница: {sell_buy_prc}, 
+                    Кол-во монет для перекрытия Network Fee и комиссию за покупку/продажу: {close_fee}
+                    Входная стоимость (Цена монет для перекрытия Network Fee и комиссию за покупку/продажу): {close_fee * min_price}
+                    Test Case 1 - 100 USDT
+                    Абсолютная разница: {sell_buy * int(100 / min_price)}, Затраты на комиссию при покупке/продаже: {100 * (min_price + max_price) / 1000},
+                    Итоговая прибыль: {sell_buy * int(100 / min_price) - 100 * (min_price + max_price) / 1000 - close_fee * min_price}
+                    Test Case 2 - 500 USDT
+                    Абсолютная разница: {sell_buy * int(500 / min_price)}, Затраты на комиссию при покупке/продаже: {500 * (min_price + max_price) / 1000},
+                    Итоговая прибыль: {sell_buy * int(500 / min_price) - 500 * (min_price + max_price) / 1000 - close_fee * min_price}
+                    Test Case 3 - 1000 USDT
+                    Абсолютная разница: {sell_buy * int(1000 / min_price)}, Затраты на комиссию при покупке/продаже: {1000 * (min_price + max_price) / 1000},
+                    Итоговая прибыль: {sell_buy * int(1000 / min_price) - 1000 * (min_price + max_price) / 1000 - close_fee * min_price}
+                    
+                    
+                    """
 
-        print(msg)
+            print(msg)
+
+            if sell_buy * int(100 / min_price) - 100 * (min_price + max_price) / 1000 - close_fee * min_price > 0:
+
+                print('МОЖНО БРАТЬ')
 
     #TODO реализовать функции place_order, check_order, withdraw
     def make_deal(self, min_stock, max_stock, amount, min_price, max_price):
 
         order_done = False
-        min_stock.place_order(min_price, amount)
+        order_id_buy = min_stock.place_order(min_price, amount)
 
         while not order_done:
-            order_done = min_stock.check_order()
+            order_done = min_stock.check_order(order_id_buy)
         print('Ордер на покупку выполнен')
         min_stock.withdraw()
 
-        max_stock.place_order(max_price, amount)
+        order_id_sell = max_stock.place_order(max_price, amount)
 
         order_done = False
         while not order_done:
-            order_done = max_stock.check_order()
+            order_done = max_stock.check_order(order_id_sell)
 
         print('Ордер на продажу выполнен')
 

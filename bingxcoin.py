@@ -15,6 +15,7 @@ class BingXCoinImpl(coin.Coin):
         self.current_cost = 0
         self.commission = self.current_cost * 0.1
         self.name = name
+        self.symbol = self.name + '-USDT'
         self.coin_network:network
 
         self._load_network_data()

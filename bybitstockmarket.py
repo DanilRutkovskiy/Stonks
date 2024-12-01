@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import json
 
 from pybit.unified_trading import HTTP
 
@@ -115,7 +116,7 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
     def place_order(self, price, qty, symbol, side):
 
         self.create_session()
-        self.session.place_order(
+        response = self.session.place_order(
             category='spot',
             symbol=symbol,
             side=side,
@@ -129,3 +130,5 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
         )
 
         print(f'{side}-сделка по монете {symbol} выполнена')
+
+        return json.loads(response)['result']['orderId']
