@@ -12,8 +12,8 @@ class Application:
         self.bybit_api_key = "Xir3foco4eJ3LjctHz"
         self.bybit_secret_key = "2LqxhKE6RoYzwb4rIUOOcVeURRIQ5FWIGTDd"
 
-        self.bybit_ex = []
-        self.bingx_ex = []
+        self.bybit_ex: bybitstockmarket.ByBitStockMarketImpl = None
+        self.bingx_ex: bingxstockmarket.BingXStockMarketImpl = None
         self.stock_ex_pool = []
         self.thread_pool = {}
 
@@ -76,21 +76,66 @@ class Application:
             for coin in self.stock_ex_pool[0].coin_list:
                 min_stock = get_min_stock(coin)
                 max_stock = get_max_stock(coin)
-                max_price = max_stock.get_coin_cost(coin)
-                min_price = min_stock.get_coin_cost(coin)
-                max_name = max_stock.name
-                min_name = min_stock.name
-                if max_price / 100 * 0.1 + min_price / 100 * 0.1 < max_price - min_price:
-                    print(max_name,':', max_price, ' | ', min_name, ':', min_price)
-                    print(coin, ": ", max_price, min_price)
-                    print('SIGNAL')
-                else:
-                    print(coin, ": ", max_price, min_price)
-                    print(max_price / 100 * 0.1 + min_price / 100 * 0.1 - (max_price - min_price))
+                if min_stock.get_coin_cost(coin) != 0 and max_stock.get_coin_cost(coin) != 0:
+                    self.generate_arbtr_stats(min_stock, max_stock, coin)
+
+
 
             sleep(1)
 
     def create_thread(self, stock, target, name):
         threading.Thread(target=target, args=(stock,), name=name)
+
+
+    def generate_arbtr_stats(self, min_stock, max_stock, coin):
+
+        max_price = max_stock.get_coin_cost(coin)
+        min_price = min_stock.get_coin_cost(coin)
+        min_coin_commission = min_stock.get_commission(coin)
+        min_coin_network = min_stock.get_coin_network(coin)
+        max_coin_commission = max_stock.get_commission(coin)
+        max_name = max_stock.name
+        min_name = min_stock.name
+
+        sell_buy_prc = abs(1 - max_price / min_price) * 100
+        sell_buy = max_price - min_price
+        sbp_fee_corr = min_price * float(min_coin_network.withdraw_fee)
+        close_fee = (sbp_fee_corr + min_coin_commission + max_coin_commission) / sell_buy
+
+        msg = f"""
+                Покупаем с: {min_name}, Цена: {min_price}, Продаем на {max_name}, Цена: {max_price}
+                Абсолютная разница: {sell_buy}, Процентная разница: {sell_buy_prc}, 
+                Кол-во монет для перекрытия Network Fee и коммисию за покупку/продажу: {close_fee}
+                Входная стоимость (Цена монет для перекрытия Network Fee и коммисию за покупку/продажу): {close_fee * min_price}
+                """
+
+        print(msg)
+
+    #TODO реализовать функции place_order, check_order, withdraw
+    def make_deal(self, min_stock, max_stock, amount, min_price, max_price):
+
+        order_done = False
+        min_stock.place_order(min_price, amount)
+
+        while not order_done:
+            order_done = min_stock.check_order()
+        print('Ордер на покупку выполнен')
+        min_stock.withdraw()
+
+        max_stock.place_order(max_price, amount)
+
+        order_done = False
+        while not order_done:
+            order_done = max_stock.check_order()
+
+        print('Ордер на продажу выполнен')
+
+
+        pass
+
+
+
+
+
 
 

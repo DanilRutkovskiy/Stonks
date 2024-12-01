@@ -168,8 +168,10 @@ class StockMarketDb(object):
             )"""
             cursor.execute(my_sql)
 
-            cursor.execute(psycopg2.sql.SQL(f"INSERT INTO stock(name) VALUES('BINGX')"))
-            cursor.execute(psycopg2.sql.SQL(f"INSERT INTO stock(name) VALUES('BYBIT')"))
+            #TODO Проверка на существование этих записей, иначе ошбика
+
+            # cursor.execute(psycopg2.sql.SQL(f"INSERT INTO stock(name) VALUES('BINGX')"))
+            # cursor.execute(psycopg2.sql.SQL(f"INSERT INTO stock(name) VALUES('BYBIT')"))
 
 
 

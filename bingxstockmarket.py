@@ -24,9 +24,6 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         self.commission = 0.1
         self.coin_map = {}
 
-    def get_comission(self):
-        return self.comission
-
     def convert_coin_to_db_import(self, data):
         coin_name = data["coin"]
         network_list = data["networkList"]
@@ -38,7 +35,6 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
                                      "withdrawMin": network["withdrawMin"]})
 
         return {coin_name: network_list_new}
-
 
     def add_coin(self, coin_list):
 
@@ -56,6 +52,12 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
 
     def get_coin_cost(self, name):
         return self.coin_map[name].get_current_cost()
+
+    def get_commission(self, name):
+        return self.coin_map[name].get_commission()
+
+    def get_coin_network(self, name):
+        return self.coin_map[name].get_coin_network()
 
     def ready(self):
         return self.is_ready
@@ -86,6 +88,7 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
     def _create_coin(self, coin):
         channel = {"id": "e745cd6d-d0f6-4a70-8d5a-043e4c741b40", "reqType": "sub", "dataType": f"{coin}-USDT@lastPrice"}
         new_coin = bingxcoin.BingXCoinImpl(self.socket_url, channel, coin)
+        new_coin.get_min_network()
         self.coin_map[coin] = new_coin
         new_coin.start()
 
@@ -175,3 +178,6 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         }
         params_str = self._parse_param(params_map)
         return self._send_request(method, path, params_str, payload)
+
+
+    #TODO Создать функцию для заполнения БД по этой бирже (аналог есть в классе bybitstockmarket.py)

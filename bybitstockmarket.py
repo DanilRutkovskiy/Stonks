@@ -1,3 +1,6 @@
+import hashlib
+import hmac
+
 from pybit.unified_trading import HTTP
 
 import stockmarket
@@ -5,6 +8,7 @@ import bybitcoin
 import threading
 import requests
 import pandas as pd
+import time
 
 
 class ByBitStockMarketImpl(stockmarket.StockMarket):
@@ -18,13 +22,13 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
         self.session = None
         self.is_ready = False
         # URL для публичного API Bybit по торговым парам на споте
-        self.coin_list_url = "https://api.bybit.com/v2/public/symbols"
+        self.coin_list_url = "https://api.bybit.com/v5/market/instruments-info"
         self.coin_full_list = []
         self.coin_map = {}
 
-
     def _create_coin(self, coin_name):
         new_coin = bybitcoin.ByBitCoinImpl(coin_name)
+        new_coin.get_min_network()
         self.coin_map[coin_name] = new_coin
         new_coin.start()
 
@@ -44,8 +48,22 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
             coin_thread.join()
 
     def get_coin_list(self):
-        resp_json = requests.get(self.coin_list_url).json()
-        self.coin_full_list = pd.DataFrame([{'alias': info['alias'], 'name': info['base_currency']} for info in resp_json['result']])
+        params = {
+            "category": "spot"  # Для спотового рынка
+        }
+        try:
+            response = requests.get(self.coin_list_url, params=params)
+            response.raise_for_status()  # Проверить успешность запроса
+            data = response.json()
+
+            if data['retCode'] == 0:  # Успешный ответ
+                self.coin_full_list = pd.DataFrame([{'alias': info['baseCoin'], 'name': info['symbol']} for info in data['result']['list']])
+
+            else:
+                print("Error:", data['retMsg'])
+
+        except requests.RequestException as e:
+            print(f"Request failed: {e}")
 
     def get_coin_networks(self, coin):
         data = self.session.get_coin_info(coin=coin)
@@ -66,6 +84,12 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
     def get_coin_cost(self, name):
         return self.coin_map[name].get_current_cost()
 
+    def get_commission(self, name):
+        return self.coin_map[name].get_commission()
+
+    def get_coin_network(self, name):
+        return self.coin_map[name].get_coin_network()
+
     def withdraw(self, address, amount, coin, chain):
         self.session.withdraw(
             coin=coin,
@@ -79,3 +103,29 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
 
     def ready(self):
         return self.is_ready
+    
+    def import_stock_data_to_db(self, db):
+        self.create_session()
+        self.get_coin_list()
+        for coin in self.coin_full_list['alias']:
+            coin_data = self.get_coin_networks(coin)
+            if coin_data != None:
+                db.import_coin({coin: coin_data}, self.get_name())
+
+    def place_order(self, price, qty, symbol, side):
+
+        self.create_session()
+        self.session.place_order(
+            category='spot',
+            symbol=symbol,
+            side=side,
+            orderType='Limit',
+            qty=qty,
+            price=price,
+            timeInForce="PostOnly",
+            orderLinkId="spot-test-postonly",
+            isLeverage=0,
+            orderFilter="Order"
+        )
+
+        print(f'{side}-сделка по монете {symbol} выполнена')

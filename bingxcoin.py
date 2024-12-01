@@ -13,7 +13,7 @@ class BingXCoinImpl(coin.Coin):
         self.ws = None
         self.channel = channel
         self.current_cost = 0
-        self.commission = 0.1
+        self.commission = self.current_cost * 0.1
         self.name = name
         self.coin_network:network
 
@@ -66,6 +66,8 @@ class BingXCoinImpl(coin.Coin):
     def get_current_cost(self):
         return float(self.current_cost)
 
-    def git_min_network(self):
-        db = database.StockMarketDb()
-        coin_list = db.get
+    def get_commission(self):
+        return float(self.commission)
+
+    def get_coin_network(self):
+        return self.coin_network

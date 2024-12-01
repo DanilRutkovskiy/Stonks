@@ -10,8 +10,8 @@ class ByBitCoinImpl(coin.Coin):
         self.current_cost = 0
         self.coin_name = coin_name
         self.channel_type = "linear"
-        self.commission = 0.1
-        self.coin_network:network
+        self.commission = self.current_cost * 0.1
+        self.coin_network: network
 
         self._load_network_data()
 
@@ -42,3 +42,9 @@ class ByBitCoinImpl(coin.Coin):
 
     def get_current_cost(self):
         return self.current_cost
+
+    def get_commission(self):
+        return float(self.commission)
+
+    def get_coin_network(self):
+        return self.coin_network
