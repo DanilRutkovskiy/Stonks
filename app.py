@@ -91,9 +91,7 @@ class Application:
 
         max_price = max_stock.get_coin_cost(coin)
         min_price = min_stock.get_coin_cost(coin)
-        min_coin_commission = min_stock.get_commission(coin)
         min_coin_network = min_stock.get_coin_network(coin)
-        max_coin_commission = max_stock.get_commission(coin)
         max_name = max_stock.name
         min_name = min_stock.name
 
@@ -109,13 +107,13 @@ class Application:
                     Кол-во монет для перекрытия Network Fee и комиссию за покупку/продажу: {close_fee}
                     Входная стоимость (Цена монет для перекрытия Network Fee и комиссию за покупку/продажу): {close_fee * min_price}
                     Test Case 1 - 100 USDT
-                    Абсолютная разница: {sell_buy * int(100 / min_price)}, Затраты на комиссию при покупке/продаже: {100 * (min_price + max_price) / 1000},
+                    Абсолютная разница: {sell_buy * int(100 / min_price)}, Затраты на комиссию при покупке/продаже: {100 * 2/ 1000},
                     Итоговая прибыль: {sell_buy * int(100 / min_price) - 100 * (min_price + max_price) / 1000 - close_fee * min_price}
                     Test Case 2 - 500 USDT
-                    Абсолютная разница: {sell_buy * int(500 / min_price)}, Затраты на комиссию при покупке/продаже: {500 * (min_price + max_price) / 1000},
+                    Абсолютная разница: {sell_buy * int(500 / min_price)}, Затраты на комиссию при покупке/продаже: {500 * 2 / 1000},
                     Итоговая прибыль: {sell_buy * int(500 / min_price) - 500 * (min_price + max_price) / 1000 - close_fee * min_price}
                     Test Case 3 - 1000 USDT
-                    Абсолютная разница: {sell_buy * int(1000 / min_price)}, Затраты на комиссию при покупке/продаже: {1000 * (min_price + max_price) / 1000},
+                    Абсолютная разница: {sell_buy * int(1000 / min_price)}, Затраты на комиссию при покупке/продаже: {1000 * 2 / 1000},
                     Итоговая прибыль: {sell_buy * int(1000 / min_price) - 1000 * (min_price + max_price) / 1000 - close_fee * min_price}
                     
                     

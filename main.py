@@ -1,6 +1,6 @@
 import coins_dict
 from app import Application
-
+import database
 
 def bing_x_thread_function(_bing_x):
     _bing_x.add_coin(coins_dict.get_btc_name())
@@ -15,10 +15,12 @@ def bybit_thread_function(_bybit):
 if __name__ == "__main__":
 
     # coin_list = db.get_common_coin_list()
+    db = database.StockMarketDb()
     app = Application()
     app.init_bingx()
     app.init_bybit()
-    app.track_coin(['ZRX'])
+    # app.bybit_ex.import_stock_data_to_db(db)
+    app.track_coin(['COMP'])
     app.show_spot_dif()
     # app.bybit_ex.place_order(0.5925, 2, 'ZRXUSDT', 'BUY')
 

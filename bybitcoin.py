@@ -9,7 +9,7 @@ class ByBitCoinImpl(coin.Coin):
         self.ws = None
         self.current_cost = 0
         self.coin_name = coin_name
-        self.channel_type = "linear"
+        self.channel_type = "spot"
         self.commission = self.current_cost * 0.1
         self.coin_network: network
 
@@ -19,11 +19,11 @@ class ByBitCoinImpl(coin.Coin):
         self.update_cost(message)
 
     def update_cost(self, new_cost):
-        cost = new_cost['data']['markPrice']
+        cost = new_cost['data']['usdIndexPrice']
         if cost == '':
             self.current_cost = 10000000
         else:
-            self.current_cost = float(new_cost['data']['markPrice'])
+            self.current_cost = float(new_cost['data']['usdIndexPrice'])
 
     def _load_network_data(self):
         db = database.StockMarketDb()
@@ -31,7 +31,7 @@ class ByBitCoinImpl(coin.Coin):
 
     def start(self):
         ws = WebSocket(
-            testnet=True,
+            testnet=False,
             channel_type=self.channel_type,
         )
         ws.ticker_stream(

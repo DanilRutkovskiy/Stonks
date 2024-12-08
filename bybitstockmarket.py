@@ -80,7 +80,8 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
         return self.session.get_server_time()['time']
 
     def create_session(self):
-        self.session = HTTP(testnet=False,api_key=self.api_key,api_secret=self.api_secret_key)
+        if self.session is None:
+            self.session = HTTP(testnet=False,api_key=self.api_key,api_secret=self.api_secret_key)
 
     def get_coin_cost(self, name):
         return self.coin_map[name].get_current_cost()
@@ -132,3 +133,12 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
         print(f'{side}-сделка по монете {symbol} выполнена')
 
         return json.loads(response)['result']['orderId']
+
+    def check_order(self, order_id):
+        self.create_session()
+        response = self.session.get_order_history(
+            category="spot",
+            order_id=order_id
+        )
+
+        return json.loads(response)['result']['list'][0]['orderStatus'] == 'Filled'

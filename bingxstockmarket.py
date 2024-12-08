@@ -88,8 +88,8 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
     def _create_coin(self, coin):
         channel = {"id": "e745cd6d-d0f6-4a70-8d5a-043e4c741b40", "reqType": "sub", "dataType": f"{coin}-USDT@lastPrice"}
         new_coin = bingxcoin.BingXCoinImpl(self.socket_url, channel, coin)
-        new_coin.get_min_network()
         self.coin_map[coin] = new_coin
+        new_coin.get_min_network()
         new_coin.start()
 
     def _get_sign(self, api_secret, payload):
