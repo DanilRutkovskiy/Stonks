@@ -226,3 +226,30 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         json_data = json.loads(data)
         for obj in json_data["data"]:
             db.import_coin(self.convert_coin_to_db_import(obj), self.get_name())
+
+    def get_order_list(self):
+        payload = {}
+        path = '/openApi/spot/v1/trade/openOrders'
+        method = "GET"
+        paramsMap = {
+            "symbol": "ETH-USDT",
+            "timestamp": self.timestapm
+        }
+        paramsStr = self._parse_param(paramsMap)
+        return json.loads(self._send_request(method, path, paramsStr, payload))
+
+
+    def get_acc_balance(self):
+
+        payload = {}
+        path = '/openApi/account/v1/allAccountBalance'
+        method = "GET"
+        paramsMap = {
+            "accountType": "sopt",
+            "recvWindow": "6000",
+            "timestamp": self.timestapm
+        }
+        paramsStr = self._parse_param(paramsMap)
+        data = self._send_request(method, path, paramsStr, payload)
+        json_data = json.loads(data)
+        return json_data['data'][0]['usdtBalance']

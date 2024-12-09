@@ -145,3 +145,13 @@ class Application:
         print('Ордер на продажу выполнен')
 
         pass
+
+    def get_all_acc_balance(self):
+
+        sum_balance = 0
+
+        for stock in self.stock_ex_pool:
+
+            sum_balance += float(stock.get_acc_balance())
+
+        return sum_balance

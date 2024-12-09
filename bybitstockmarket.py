@@ -141,4 +141,21 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
             order_id=order_id
         )
 
-        return json.loads(response)['result']['list'][0]['orderStatus'] == 'Filled'
+        return response['result']['list'][0]['orderStatus'] == 'Filled'
+
+    def get_order_list(self):
+        self.create_session()
+        response = self.session.get_open_orders(
+            category="spot",
+            symbol='ETHUSDT'
+        )
+        return response
+
+    def get_acc_balance(self):
+        self.create_session()
+        response = self.session.get_coins_balance(
+            accountType="UNIFIED",
+            coin="USDT",
+        )
+
+        return response['result']['balance'][0]['walletBalance']

@@ -14,14 +14,16 @@ def bybit_thread_function(_bybit):
 
 if __name__ == "__main__":
 
-    # coin_list = db.get_common_coin_list()
     db = database.StockMarketDb()
+    coin_list = db.get_common_coin_list()
     app = Application()
     app.init_bingx()
     app.init_bybit()
+    print(app.get_all_acc_balance())
+    pass
     # app.bybit_ex.import_stock_data_to_db(db)
-    app.track_coin(['COMP'])
-    app.show_spot_dif()
+    # app.track_coin(['CHZ'])
+    # app.show_spot_dif()
     # app.bybit_ex.place_order(0.5925, 2, 'ZRXUSDT', 'BUY')
 
 
