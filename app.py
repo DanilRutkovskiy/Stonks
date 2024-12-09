@@ -2,6 +2,7 @@ import threading
 from time import sleep
 
 import bybitstockmarket, bingxstockmarket
+import database
 
 
 class Application:
@@ -79,8 +80,6 @@ class Application:
                 if min_stock.get_coin_cost(coin) != 0 and max_stock.get_coin_cost(coin) != 0:
                     self.generate_arbtr_stats(min_stock, max_stock, coin)
 
-
-
             sleep(1)
 
     def create_thread(self, stock, target, name):
@@ -141,6 +140,14 @@ class Application:
         order_done = False
         while not order_done:
             order_done = max_stock.check_order(order_id_sell)
+
+        db = database.StockMarketDb()
+        db._write_sucseeded_transation(self.get_all_acc_balance(),
+                                       min_stock.get_name(),
+                                       max_stock.get_name(),
+                                       min_stock.get_coin_network(coin),
+                                       coin)
+
 
         print('Ордер на продажу выполнен')
 

@@ -161,7 +161,7 @@ class StockMarketDb(object):
 	            withdraw_fee VARCHAR,
 	            deposit_min VARCHAR,
 	            withdraw_min VARCHAR,
-	            FOREIGN KEY(coin_id) REFERENCES coins(id) ON DELETE CASCADE,
+	            FOREIGN KEY (coin_id) REFERENCES coins(id) ON DELETE CASCADE,
 	            FOREIGN KEY (network_id) REFERENCES networks(id) ON DELETE CASCADE,
 	            FOREIGN KEY (stock_id) REFERENCES stock(id) ON DELETE CASCADE,
 	            UNIQUE(coin_id, network_id, stock_id)
@@ -171,6 +171,8 @@ class StockMarketDb(object):
             cursor.execute(psycopg2.sql.SQL(f"INSERT INTO stock(name) VALUES('BINGX')"))
             cursor.execute(psycopg2.sql.SQL(f"INSERT INTO stock(name) VALUES('BYBIT')"))
 
+            self._create_balance_table()
+            self._create_transaction_info_table()
 
 
         except psycopg2.OperationalError as e:
@@ -181,7 +183,7 @@ class StockMarketDb(object):
         conn_params = {
             "dbname": "stockBot",
             "user": "postgres",
-            "password": "mc56ck",
+            "password": "secret",
             "host": "localhost",
             "port": 5432
         }
@@ -221,3 +223,77 @@ class StockMarketDb(object):
                                         END;
                                         $$;
                                         """))
+
+    def _create_balance_table(self):
+        cursor = self.conn.cursor()
+        cursor.execute(psycopg2.sql.SQL("""
+            DO $$
+            BEGIN
+                CREATE TABLE IF NOT EXISTS balance
+                (
+                    id BIGSERIAL PRIMARY KEY,
+	                current_balance NUMERIC,
+	                date TIMESTAMP
+                );
+            END;
+            $$;
+        """))
+
+    def _create_transaction_info_table(self):
+        cursor = self.conn.cursor()
+        cursor.execute(psycopg2.sql.SQL("""
+                    DO $$
+                    BEGIN
+                        CREATE TABLE IF NOT EXISTS transaction_info
+                        (
+                            id SERIAL PRIMARY KEY,
+                            balance_id BIGINT NOT NULL,
+                            from_stock_id BIGINT NOT NULL,
+                            to_stock_id BIGINT NOT NULL,
+                            network_id BIGINT NOT NULL,
+                            coin_id BIGINT NOT NULL,
+        	                FOREIGN KEY (balance_id) REFERENCES balance(id) ON DELETE CASCADE,
+        	                FOREIGN KEY (from_stock_id) REFERENCES stock(id) ON DELETE CASCADE,
+        	                FOREIGN KEY (to_stock_id) REFERENCES stock(id) ON DELETE CASCADE,
+        	                FOREIGN KEY (network_id) REFERENCES networks(id) ON DELETE CASCADE,
+        	                FOREIGN KEY (coin_id) REFERENCES coins(id) ON DELETE CASCADE
+                        );
+                    END;
+                    $$;
+                """))
+
+    def _write_sucseeded_transation(self, cur_balance, from_stock, to_stock, network, coin):
+        cursor = self.conn.cursor()
+        cursor.execute(psycopg2.sql.SQL(f"""
+                    DO $$
+                    DECLARE
+                        new_balance_id BIGINT;
+                        new_from_stock_id BIGINT;
+                        new_to_stock_id BIGINT;
+                        new_network_id BIGINT;
+                        new_coin_id BIGINT;
+                    BEGIN
+                        INSERT INTO balance(current_balance, date)
+                        VALUES ({cur_balance}, (SELECT NOW())) INTO new_balance_id;
+                        
+                        SELECT id INTO new_from_stock_id
+                        FROM stock
+                        WHERE name = '{from_stock}';
+                        
+                        SELECT id INTO new_to_stock_id
+                        FROM stock
+                        WHERE name = '{to_stock}';
+                        
+                        SELECT id INTO new_network_id
+                        FROM networks
+                        WHERE name = '{network}';
+                        
+                        SELECT id INTO new_coin_id
+                        FROM coins
+                        WHERE name = '{coin}';
+                        
+                        INSERT INTO transaction_info(balance_id, from_stock_id, to_stock_id, network_id, coin_id)
+                        VALUES (new_balance_id, new_from_stock_id, new_to_stock_id, new_network_id, new_coin_id)
+                    END;
+                    $$;
+                """))

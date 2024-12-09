@@ -15,12 +15,12 @@ def bybit_thread_function(_bybit):
 if __name__ == "__main__":
 
     db = database.StockMarketDb()
-    coin_list = db.get_common_coin_list()
-    app = Application()
-    app.init_bingx()
-    app.init_bybit()
-    print(app.get_all_acc_balance())
-    pass
+    db._create_balance_table()
+    db._create_transaction_info_table()
+    #coin_list = db.get_common_coin_list()
+    #app = Application()
+    #app.init_bingx()
+    #app.init_bybit()
     # app.bybit_ex.import_stock_data_to_db(db)
     # app.track_coin(['CHZ'])
     # app.show_spot_dif()
