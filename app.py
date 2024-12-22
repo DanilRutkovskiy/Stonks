@@ -2,6 +2,7 @@ import threading
 
 from time import sleep
 import time
+import math
 
 import bybitstockmarket, bingxstockmarket
 import database
@@ -141,8 +142,8 @@ class Application:
                     return
         print('Ордер на покупку выполнен')
         network = min_stock.get_coin_network(coin)
-        address = '0x' + max_stock.get_deposit_address(coin, network.name)
-        min_stock.withdraw(address, round(amount, 8), coin, network.name)
+        address = max_stock.get_deposit_address(coin, network.name)
+        min_stock.withdraw(address, str(math.floor((amount - network.withdraw_min) * 10**8) / 10**8), coin, network.name)
 
         order_id_sell = max_stock.place_order(max_price, amount, max_stock.coin_map[coin].symbol, 'SELL')
 
