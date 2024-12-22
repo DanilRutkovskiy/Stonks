@@ -12,7 +12,7 @@ class ByBitCoinImpl(coin.Coin):
         self.channel_type = "spot"
         self.commission = self.current_cost * 0.1
         self.coin_network: network
-        self.symbol = self.name + 'USDT'
+        self.symbol = self.coin_name + 'USDT'
 
         self._load_network_data()
 

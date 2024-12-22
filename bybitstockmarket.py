@@ -119,20 +119,19 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
         self.create_session()
         response = self.session.place_order(
             category='spot',
-            symbol=symbol,
+            symbol=symbol,#BTSUSDT
             side=side,
             orderType='Limit',
-            qty=qty,
-            price=price,
+            qty=round(qty, 2),
+            price=round(price, 2),
             timeInForce="PostOnly",
-            orderLinkId="spot-test-postonly",
             isLeverage=0,
             orderFilter="Order"
         )
 
         print(f'{side}-сделка по монете {symbol} выполнена')
 
-        return json.loads(response)['result']['orderId']
+        return response['result']['orderId']
 
     def check_order(self, order_id):
         self.create_session()
