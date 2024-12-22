@@ -8,13 +8,14 @@ import pandas as pd
 if __name__ == "__main__":
 
     db = database.StockMarketDb()
-    # db.init_local_db()
+    #db.init_local_db(True)
+    #db.init_local_db()
     app = Application()
     app.init_bybit()
     app.init_bingx()
 
-    # app.bybit_ex.import_stock_data_to_db(db)
-    # app.bingx_ex.import_stock_data_to_db(db)
+    #app.bybit_ex.import_stock_data_to_db(db)
+    #app.bingx_ex.import_stock_data_to_db(db)
 
     # df = db.get_common_networks()
     #

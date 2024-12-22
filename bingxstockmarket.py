@@ -190,9 +190,9 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
             "type": "LIMIT",
             "symbol": symbol,#format BTC-USDT
             "side": side,
-            "quantity": qty,
+            "quantity": round(qty, 2),
             "newClientOrderId": "",
-            "price": price,
+            "price": round(price, 2),
             "recvWindow": 1000,
             "timeInForce": "GTC",
             "timestamp": self.timestapm
