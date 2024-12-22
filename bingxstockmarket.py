@@ -190,20 +190,42 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         order_id = json_data.get("data", {}).get("orderId")
         return order_id
 
-    def cancel_order(self, symbol, orderId):
+    def cancel_order(self, symbol, order_id):
         payload = {}
         path = '/openApi/spot/v1/trade/cancel'
         method = "POST"
         params_map = {
-            "orderId": orderId,
+            "orderId": order_id,
             "symbol": symbol,
             "timestamp": self._get_server_time()
         }
         params_str = self._parse_param(params_map)
+        try:
+            data = self._send_request(method, path, params_str, payload)
+            json_data = json.loads(data)
+            status = json_data.get("data", {}).get("status")
+            return status == "CANCELED"
+        except:
+            return True
+
+        return False
+
+    def get_coin_balance(self, coin):
+        payload = {}
+        path = '/openApi/spot/v1/account/balance'
+        method = "GET"
+        params_map = {
+            "recvWindow": "60000",
+            "timestamp": "1702624167523"
+        }
+        params_str = self._parse_param(params_map)
         data = self._send_request(method, path, params_str, payload)
         json_data = json.loads(data)
-        status = json_data.get("data", {}).get("status")
-        return status == "CANCELED"
+        for obj in json_data[data]:
+            if obj.get('asset') == coin:
+                return obj.get('free')
+
+        return -1
 
     def get_deposit_address(self, coin, network):
         payload = {}

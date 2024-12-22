@@ -143,7 +143,7 @@ class Application:
         print('Ордер на покупку выполнен')
         network = min_stock.get_coin_network(coin)
         address = max_stock.get_deposit_address(coin, network.name)
-        min_stock.withdraw(address, str(math.floor((amount - network.withdraw_min) * 10**8) / 10**8), coin, network.name)
+        min_stock.withdraw(address, amount, coin, network.name)
 
         order_id_sell = max_stock.place_order(max_price, amount, max_stock.coin_map[coin].symbol, 'SELL')
 

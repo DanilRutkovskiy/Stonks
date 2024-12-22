@@ -2,6 +2,7 @@ import hashlib
 import hmac
 import json
 import uuid
+import math
 
 from pybit.unified_trading import HTTP
 
@@ -95,12 +96,16 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
 
     def withdraw(self, address, amount, coin, chain):
         self.create_session()
-        self.transfer_from_unif_to_fund(coin, amount)
+        unif_amount = math.floor(amount * 10**8) / 10**8
+        transfer_amount = str(math.floor((unif_amount-float(self.get_coin_network(coin).withdraw_fee)) * 10**8) / 10**8)
+        self.transfer_from_unif_to_fund(coin, str(unif_amount))
         self.session.withdraw(
             coin=coin,
             chain=chain,
             address=address,
-            amount=amount,
+            amount=str(transfer_amount),
+            forceChain=0,
+            accountType="FUND",
             timestamp=self.session.get_server_time()['time']
         )
 
@@ -165,7 +170,7 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
         return response['result']['balance'][0]['walletBalance']
 
 
-    def get_deposit_addres(self, coin, chain):
+    def get_deposit_address(self, coin, chain):
         self.create_session()
         response = self.session.get_master_deposit_address(
             coin=coin,
@@ -176,12 +181,14 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
 
     def cancel_order(self, symbol, order_id):
         self.create_session()
-        if not self.check_order(order_id):
+        try:
             response = self.session.cancel_order(
                 category="spot",
                 symbol=symbol,
                 orderId=order_id,
             )
+        except:
+            return True
 
         return True
 
