@@ -182,7 +182,7 @@ class StockMarketDb(object):
         conn_params = {
             "dbname": "stockBot",
             "user": "postgres",
-            "password": "mc56ck",
+            "password": "secret",
             "host": "localhost",
             "port": 5432
         }

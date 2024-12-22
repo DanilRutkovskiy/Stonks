@@ -134,7 +134,7 @@ class Application:
         while not order_done:
             order_done = min_stock.check_order(order_id_buy)
         print('Ордер на покупку выполнен')
-        min_stock.withdraw(amount, max_stock.address, coin, min_stock.get_coin_network(coin))
+        min_stock.withdraw(amount, max_stock.get_deposit_address(), coin, min_stock.get_coin_network(coin))
 
         order_id_sell = max_stock.place_order(max_price, amount, max_stock.coin_map[coin].symbol, 'SELL')
 

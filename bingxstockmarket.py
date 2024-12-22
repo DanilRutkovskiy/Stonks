@@ -122,21 +122,6 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         if server_time:
             return server_time
 
-    def get_address(self):
-        path = '/openApi/wallets/v1/capital/deposit/address'
-        method = "GET"
-        payload = {}
-        params_map = {
-            "coin": "USDT",
-            "limit": "1000",
-            "offset": "0",
-            "recvWindow": "0",
-            "timestamp": self.timestapm
-        }
-        params_str = self._parse_param(params_map)
-        data = self._send_request(method, path, params_str, payload)
-        print(data)
-
     def get_config(self):
         path = '/openApi/wallets/v1/capital/config/getall'
         method = "GET"
@@ -203,6 +188,26 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         json_data = json.loads(data)
         order_id = json_data.get("data", {}).get("orderId")
         return order_id
+
+    def get_deposit_address(self, coin, network):
+        payload = {}
+        path = '/openApi/wallets/v1/capital/deposit/address'
+        method = "GET"
+        params_map = {
+            "coin": coin,
+            "limit": "1000",
+            "offset": "0",
+            "recvWindow": "0",
+            "timestamp": self.timestapm
+        }
+        params_str = self._parse_param(params_map)
+        data = self._send_request(method, path, params_str, payload)
+        json_data = json.loads(data)
+        for obj in json_data['data']:
+            if obj.get('network') == network:
+                return obj.get('address')
+
+        return -1
 
     def check_order(self, symbol, order_id):
         payload = {}
