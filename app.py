@@ -41,6 +41,8 @@ class Application:
 
             sleep(1)
 
+        self.show_spot_dif()
+
         # while True:
         #     max_price = max([stock.get_coin_cost('BTC') for stock in self.stock_ex_pool])
         #     min_price = min([stock.get_coin_cost('BTC') for stock in self.stock_ex_pool])
@@ -118,9 +120,10 @@ class Application:
 
             print(msg)
 
-            if sell_buy * int(100 / min_price) - 100 * (min_price + max_price) / 1000 - close_fee * min_price > 0:
+            if sell_buy * int(50 / min_price) - 50 * (min_price + max_price) / 1000 - close_fee * min_price > 0:
 
                 print('МОЖНО БРАТЬ')
+                self.make_deal(min_stock, max_stock, 50*min_price, min_price, max_price, coin)
 
     #TODO реализовать функции place_order, check_order, withdraw
     def make_deal(self, min_stock, max_stock, amount, min_price, max_price, coin):

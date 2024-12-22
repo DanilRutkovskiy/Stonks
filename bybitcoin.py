@@ -20,9 +20,7 @@ class ByBitCoinImpl(coin.Coin):
 
     def update_cost(self, new_cost):
         cost = new_cost['data']['usdIndexPrice']
-        if cost == '':
-            self.current_cost = 10000000
-        else:
+        if cost != '':
             self.current_cost = float(new_cost['data']['usdIndexPrice'])
 
     def _load_network_data(self):
