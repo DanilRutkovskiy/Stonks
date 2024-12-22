@@ -7,16 +7,17 @@ import pandas as pd
 
 if __name__ == "__main__":
 
-    db = database.StockMarketDb()
+    # db = database.StockMarketDb()
     #db.init_local_db(True)
     #db.init_local_db()
     app = Application()
     app.init_bybit()
     app.init_bingx()
+    app.bybit_ex.get_coin_balance('ICP')
     #res = app.bybit_ex.get_deposit_addres('ICP', 'ICP')
     #pass
 
-    app.track_coin(['ICP'])
+    # app.track_coin(['ICP'])
 
     #app.bybit_ex.import_stock_data_to_db(db)
     #app.bingx_ex.import_stock_data_to_db(db)

@@ -101,7 +101,9 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
             chain=chain,
             address=address,
             amount=amount,
-            timestamp=self.session.get_server_time()['time']
+            timestamp=self.session.get_server_time()['time'],
+            forceChain=0,
+            accountType="FUND"
         )
 
     def ready(self):
@@ -176,14 +178,14 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
 
     def cancel_order(self, symbol, order_id):
         self.create_session()
-        if not self.check_order(order_id):
+        try:
             response = self.session.cancel_order(
                 category="spot",
                 symbol=symbol,
                 orderId=order_id,
             )
-
-        return True
+        except:
+            return True
 
     def transfer_from_unif_to_fund(self, coin, amount):
         self.create_session()
@@ -196,3 +198,12 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
         )
 
         return response
+
+    def get_coin_balance(self, coin):
+        self.create_session()
+        response = self.session.get_coins_balance(
+            accountType="UNIFIED",
+            coin=coin,
+        )
+
+        return response['result']['balance'][0]['walletBalance']
