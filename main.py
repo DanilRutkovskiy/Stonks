@@ -13,6 +13,10 @@ if __name__ == "__main__":
     app = Application()
     app.init_bybit()
     app.init_bingx()
+    res = app.bybit_ex.get_deposit_addres('ICP', 'ICP')
+    pass
+
+    # app.track_coin(['EGLD'])
 
     #app.bybit_ex.import_stock_data_to_db(db)
     #app.bingx_ex.import_stock_data_to_db(db)
@@ -37,7 +41,7 @@ if __name__ == "__main__":
     # print(app.get_all_acc_balance())
     pass
     # app.bybit_ex.import_stock_data_to_db(db)
-    app.track_coin(['ICP'])
+
     # app.bybit_ex.place_order(0.5925, 2, 'ZRXUSDT', 'BUY')
 
 

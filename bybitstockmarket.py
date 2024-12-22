@@ -167,4 +167,4 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
             chainType=chain,
         )
 
-        return response
+        return response['result']['chains'][0]['addressDeposit']
