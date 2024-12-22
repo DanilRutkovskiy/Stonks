@@ -103,7 +103,7 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
             amount=amount,
             timestamp=self.session.get_server_time()['time'],
             forceChain=0,
-            accountType="SPOT",
+            accountType="FUND",
         )
 
     def ready(self):
