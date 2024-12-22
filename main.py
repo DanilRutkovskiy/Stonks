@@ -15,12 +15,25 @@ def bybit_thread_function(_bybit):
 if __name__ == "__main__":
 
     db = database.StockMarketDb()
-    db._create_balance_table()
-    db._create_transaction_info_table()
-    #coin_list = db.get_common_coin_list()
-    #app = Application()
-    #app.init_bingx()
-    #app.init_bybit()
+    df = db.get_common_networks()
+
+    res_df = pd.DataFrame()
+    for n in df['network_id'].unique():
+
+        ndf = df[df['network_id'] == n]
+
+        if len(ndf['stock_id'].unique()) > 1:
+            ndf = ndf[ndf.duplicated('coin_id') | ndf.duplicated('coin_id', keep='last')]
+            res_df = pd.concat([res_df, ndf])
+
+            pass
+
+    # coin_list = db.get_common_coin_list()
+    # app = Application()
+    # app.init_bingx()
+    # app.init_bybit()
+    # print(app.get_all_acc_balance())
+    pass
     # app.bybit_ex.import_stock_data_to_db(db)
     # app.track_coin(['CHZ'])
     # app.show_spot_dif()

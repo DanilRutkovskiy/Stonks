@@ -89,7 +89,6 @@ class StockMarketDb(object):
 
 
     def get_coin_list_for_stock(self, stock):
-        cursor = self.conn.cursor()
 
         my_sql = f"""SELECT DISTINCT(c.name) FROM coin_network_for_stock as cnfs
                     JOIN stock AS s ON cnfs.stock_id = s.id
@@ -223,6 +222,15 @@ class StockMarketDb(object):
                                         END;
                                         $$;
                                         """))
+
+
+    def get_common_networks(self):
+
+        my_sql = f"""SELECT * FROM public.coin_network_for_stock"""
+
+        df = pandas.read_sql(my_sql, self.conn)
+
+        return df
 
     def _create_balance_table(self):
         cursor = self.conn.cursor()

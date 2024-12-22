@@ -114,8 +114,6 @@ class Application:
                     Test Case 3 - 1000 USDT
                     Абсолютная разница: {sell_buy * int(1000 / min_price)}, Затраты на комиссию при покупке/продаже: {1000 * 2 / 1000},
                     Итоговая прибыль: {sell_buy * int(1000 / min_price) - 1000 * (min_price + max_price) / 1000 - close_fee * min_price}
-                    
-                    
                     """
 
             print(msg)
@@ -125,7 +123,7 @@ class Application:
                 print('МОЖНО БРАТЬ')
 
     #TODO реализовать функции place_order, check_order, withdraw
-    def make_deal(self, min_stock, max_stock, amount, min_price, max_price):
+    def make_deal(self, min_stock, max_stock, amount, min_price, max_price, coin):
 
         order_done = False
         order_id_buy = min_stock.place_order(min_price, amount)
@@ -133,7 +131,7 @@ class Application:
         while not order_done:
             order_done = min_stock.check_order(order_id_buy)
         print('Ордер на покупку выполнен')
-        min_stock.withdraw()
+        min_stock.withdraw(amount, coin, min_stock.get_coin_network(coin))
 
         order_id_sell = max_stock.place_order(max_price, amount)
 
