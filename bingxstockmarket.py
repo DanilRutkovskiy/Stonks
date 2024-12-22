@@ -127,13 +127,14 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         method = "GET"
         payload = {}
         params_map = {
-            "timestamp": self.timestapm
+            "timestamp": self._get_server_time()
         }
         params_str = self._parse_param(params_map)
         data = self._send_request(method, path, params_str, payload)
         return data
 
     def get_withdraw_record(self):
+        tt = self._get_server_time()
         payload = {}
         path = '/openApi/api/v3/capital/withdraw/history'
         method = "GET"
@@ -141,8 +142,8 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
             "coin": "BNB",
             "endTime": self.timestapm,
             "recvWindow": "60",
-            "startTime": int((datetime.fromtimestamp(self.timestapm / 1000) - timedelta(days=1)).timestamp() * 1000),
-            "timestamp": self.timestapm
+            "startTime": int((datetime.fromtimestamp(tt / 1000) - timedelta(days=1)).timestamp() * 1000),
+            "timestamp": tt
         }
         params_str = self._parse_param(params_map)
         data =  self._send_request(method, path, params_str, payload)
@@ -157,7 +158,7 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
             "amount": amount,
             "coin": coin_name,
             "network": network_name,
-            "timestamp": self.timestapm,
+            "timestamp": self._get_server_time(),
             "walletType": "1"
         }
         #TODO Возможные ошибки - не удалось выполнить запрос к бирже(приходит JSON без data)
@@ -177,10 +178,10 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
             "side": side,
             "quantity": round(qty, 2),
             "newClientOrderId": "",
-            "price": round(price, 2),
+            "price": round(price, 4),
             "recvWindow": 1000,
             "timeInForce": "GTC",
-            "timestamp": self.timestapm
+            "timestamp": self._get_server_time()
         }
         #TODO Возможные ошибки - не удалось выполнить запрос к бирже(приходит JSON без data)
         params_str = self._parse_param(params_map)
@@ -188,6 +189,21 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         json_data = json.loads(data)
         order_id = json_data.get("data", {}).get("orderId")
         return order_id
+
+    def cancel_order(self, symbol, orderId):
+        payload = {}
+        path = '/openApi/spot/v1/trade/cancel'
+        method = "POST"
+        params_map = {
+            "orderId": orderId,
+            "symbol": symbol,
+            "timestamp": self._get_server_time()
+        }
+        params_str = self._parse_param(params_map)
+        data = self._send_request(method, path, params_str, payload)
+        json_data = json.loads(data)
+        status = json_data.get("data", {}).get("status")
+        return status == "CANCELED"
 
     def get_deposit_address(self, coin, network):
         payload = {}
@@ -198,12 +214,12 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
             "limit": "1000",
             "offset": "0",
             "recvWindow": "0",
-            "timestamp": self.timestapm
+            "timestamp": self._get_server_time()
         }
         params_str = self._parse_param(params_map)
         data = self._send_request(method, path, params_str, payload)
         json_data = json.loads(data)
-        for obj in json_data['data']:
+        for obj in json_data['data']['data']:
             if obj.get('network') == network:
                 return obj.get('address')
 
@@ -216,7 +232,7 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         params_map = {
             "symbol": symbol,
             "orderId": order_id,
-            "timestamp": self.timestapm
+            "timestamp": self._get_server_time()
         }
         #TODO Возможные ошибки - не удалось выполнить запрос к бирже(приходит JSON без data)
         params_str = self._parse_param(params_map)
@@ -238,7 +254,7 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         method = "GET"
         paramsMap = {
             "symbol": "ETH-USDT",
-            "timestamp": self.timestapm
+            "timestamp": self._get_server_time()
         }
         paramsStr = self._parse_param(paramsMap)
         return json.loads(self._send_request(method, path, paramsStr, payload))
@@ -252,7 +268,7 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         paramsMap = {
             "accountType": "sopt",
             "recvWindow": "6000",
-            "timestamp": self.timestapm
+            "timestamp": self._get_server_time()
         }
         paramsStr = self._parse_param(paramsMap)
         data = self._send_request(method, path, paramsStr, payload)

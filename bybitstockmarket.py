@@ -101,9 +101,7 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
             chain=chain,
             address=address,
             amount=amount,
-            timestamp=self.session.get_server_time()['time'],
-            forceChain=0,
-            accountType="FUND",
+            timestamp=self.session.get_server_time()['time']
         )
 
     def ready(self):
@@ -126,7 +124,7 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
             side=side,
             orderType='Limit',
             qty=round(qty, 2),
-            price=round(price, 2),
+            price=round(price, 4),
             timeInForce="PostOnly",
             isLeverage=0,
             orderFilter="Order"
@@ -136,14 +134,18 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
 
         return response['result']['orderId']
 
-    def check_order(self, order_id):
+    def check_order(self, symbol, order_id):
         self.create_session()
         response = self.session.get_order_history(
             category="spot",
             order_id=order_id
         )
 
-        return response['result']['list'][0]['orderStatus'] == 'Filled'
+        for obj in response['result']['list']:
+            if obj['orderId'] == order_id:
+                return obj['orderStatus'] == 'Filled'
+
+        return False
 
     def get_order_list(self):
         self.create_session()
@@ -181,7 +183,7 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
                 orderId=order_id,
             )
 
-        return response
+        return True
 
     def transfer_from_unif_to_fund(self, coin, amount):
         self.create_session()
