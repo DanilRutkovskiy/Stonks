@@ -1,6 +1,7 @@
 import hashlib
 import hmac
 import json
+import uuid
 
 from pybit.unified_trading import HTTP
 
@@ -93,6 +94,8 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
         return self.coin_map[name].get_coin_network()
 
     def withdraw(self, address, amount, coin, chain):
+        self.create_session()
+        self.transfer_from_unif_to_fund(coin, amount)
         self.session.withdraw(
             coin=coin,
             chain=chain,
@@ -180,3 +183,15 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
         )
 
         return True
+
+    def transfer_from_unif_to_fund(self, coin, amount):
+        self.create_session()
+        response = self.session.create_internal_transfer(
+            transferId=str(uuid.uuid4()),
+            coin=coin,
+            amount=amount,
+            fromAccountType="UNIFIED",
+            toAccountType="FUND",
+        )
+
+        return response
