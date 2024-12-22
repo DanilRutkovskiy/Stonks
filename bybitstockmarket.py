@@ -170,3 +170,13 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
         )
 
         return response['result']['chains'][0]['addressDeposit']
+
+    def cancel_order(self, symbol, order_id):
+        self.create_session()
+        response = self.session.cancel_order(
+            category="spot",
+            symbol=symbol,
+            orderId=order_id,
+        )
+
+        return response
