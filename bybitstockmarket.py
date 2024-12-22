@@ -174,11 +174,12 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
 
     def cancel_order(self, symbol, order_id):
         self.create_session()
-        response = self.session.cancel_order(
-            category="spot",
-            symbol=symbol,
-            orderId=order_id,
-        )
+        if not self.check_order(order_id):
+            response = self.session.cancel_order(
+                category="spot",
+                symbol=symbol,
+                orderId=order_id,
+            )
 
         return response
 
