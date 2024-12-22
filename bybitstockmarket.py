@@ -159,3 +159,13 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
         )
 
         return response['result']['balance'][0]['walletBalance']
+
+
+    def get_deposit_addres(self, coin, chain):
+        self.create_session()
+        response = self.session.get_master_deposit_address(
+            coin=coin,
+            chainType=chain,
+        )
+
+        return response

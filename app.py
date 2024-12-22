@@ -129,14 +129,14 @@ class Application:
     def make_deal(self, min_stock, max_stock, amount, min_price, max_price, coin):
 
         order_done = False
-        order_id_buy = min_stock.place_order(min_price, amount)
+        order_id_buy = min_stock.place_order(min_price, amount, min_stock.coin_map[coin].symbol, "buy")
 
         while not order_done:
             order_done = min_stock.check_order(order_id_buy)
         print('Ордер на покупку выполнен')
         min_stock.withdraw(amount, coin, min_stock.get_coin_network(coin))
 
-        order_id_sell = max_stock.place_order(max_price, amount)
+        order_id_sell = max_stock.place_order(max_price, amount, max_stock.coin_map[coin].symbol, 'sell')
 
         order_done = False
         while not order_done:
