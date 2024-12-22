@@ -176,9 +176,9 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
             "type": "LIMIT",
             "symbol": symbol,#format BTC-USDT
             "side": side,
-            "quantity": round(qty, 2),
+            "quantity": round(float(qty), 2),
             "newClientOrderId": "",
-            "price": round(price, 4),
+            "price": round(float(price), 4),
             "recvWindow": 1000,
             "timeInForce": "GTC",
             "timestamp": self._get_server_time()
@@ -216,12 +216,12 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         method = "GET"
         params_map = {
             "recvWindow": "60000",
-            "timestamp": "1702624167523"
+            "timestamp": self._get_server_time()
         }
         params_str = self._parse_param(params_map)
         data = self._send_request(method, path, params_str, payload)
         json_data = json.loads(data)
-        for obj in json_data[data]:
+        for obj in json_data['data']['balances']:
             if obj.get('asset') == coin:
                 return obj.get('free')
 

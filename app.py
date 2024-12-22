@@ -126,7 +126,7 @@ class Application:
             if True:#sell_buy * int(50 / min_price) - 50 * (min_price + max_price) / 1000 - close_fee * min_price > 0:
 
                 print('МОЖНО БРАТЬ')
-                self.make_deal(min_stock, max_stock, 10 / min_price, min_price, max_price, coin)
+                self.make_deal(min_stock, max_stock, 3 / min_price, min_price, max_price, coin)
 
     #TODO реализовать функции place_order, check_order, withdraw
     def make_deal(self, min_stock, max_stock, amount, min_price, max_price, coin):
@@ -143,8 +143,12 @@ class Application:
         print('Ордер на покупку выполнен')
         network = min_stock.get_coin_network(coin)
         address = max_stock.get_deposit_address(coin, network.name)
+        amount = min_stock.get_coin_balance(coin)
         min_stock.withdraw(address, amount, coin, network.name)
 
+        while max_stock.get_coin_balance(coin) < amount:
+            sleep(5)
+        #TODO - TEST FROM HERE :)
         order_id_sell = max_stock.place_order(max_price, amount, max_stock.coin_map[coin].symbol, 'SELL')
 
         order_done = False

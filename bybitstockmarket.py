@@ -96,7 +96,7 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
 
     def withdraw(self, address, amount, coin, chain):
         self.create_session()
-        unif_amount = math.floor(amount * 10**8) / 10**8
+        unif_amount = math.floor(float(amount) * 10**8) / 10**8
         transfer_amount = str(math.floor((unif_amount-float(self.get_coin_network(coin).withdraw_fee)) * 10**8) / 10**8)
         self.transfer_from_unif_to_fund(coin, str(unif_amount))
         self.session.withdraw(
