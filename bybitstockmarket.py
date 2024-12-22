@@ -104,9 +104,9 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
             chain=chain,
             address=address,
             amount=str(transfer_amount),
+            timestamp=self.session.get_server_time()['time'],
             forceChain=0,
-            accountType="FUND",
-            timestamp=self.session.get_server_time()['time']
+            accountType="FUND"
         )
 
     def ready(self):
@@ -203,3 +203,12 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
         )
 
         return response
+
+    def get_coin_balance(self, coin):
+        self.create_session()
+        response = self.session.get_coins_balance(
+            accountType="UNIFIED",
+            coin=coin,
+        )
+
+        return response['result']['balance'][0]['walletBalance']
