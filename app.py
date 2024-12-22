@@ -1,5 +1,7 @@
 import threading
+
 from time import sleep
+import time
 
 import bybitstockmarket, bingxstockmarket
 import database
@@ -131,12 +133,16 @@ class Application:
         order_done = False
         order_id_buy = min_stock.place_order(min_price, amount, min_stock.coin_map[coin].symbol, 'BUY')
 
+        start_time = time.time()
         while not order_done:
             order_done = min_stock.check_order(min_stock.coin_map[coin].symbol, order_id_buy)
+            if time.time() - start_time > 10 and not order_done:
+                if min_stock.cancel_order(min_stock.coin_map[coin].symbol, order_id_buy):
+                    return
         print('Ордер на покупку выполнен')
         network = min_stock.get_coin_network(coin)
-        address = max_stock.get_deposit_address(coin, network.name)
-        min_stock.withdraw(address, amount, coin, network.name)
+        address = '0x' + max_stock.get_deposit_address(coin, network.name)
+        min_stock.withdraw(address, round(amount, 8), coin, network.name)
 
         order_id_sell = max_stock.place_order(max_price, amount, max_stock.coin_map[coin].symbol, 'SELL')
 

@@ -179,4 +179,4 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
             orderId=order_id,
         )
 
-        return response
+        return True
