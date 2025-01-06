@@ -112,13 +112,13 @@ class Application:
                     Входная стоимость (Цена монет для перекрытия Network Fee и комиссию за покупку/продажу): {close_fee * min_price}
                     Test Case 1 - 100 USDT
                     Абсолютная разница: {sell_buy * int(100 / min_price)}, Затраты на комиссию при покупке/продаже: {100 * 2/ 1000},
-                    Итоговая прибыль: {sell_buy * int(100 / min_price) - 100 * (min_price + max_price) / 1000 - close_fee * min_price}
+                    Итоговая прибыль: {sell_buy * int(100 / min_price) - 100 * (min_price + max_price) / 1000 - sbp_fee_corr}
                     Test Case 2 - 500 USDT
                     Абсолютная разница: {sell_buy * int(500 / min_price)}, Затраты на комиссию при покупке/продаже: {500 * 2 / 1000},
-                    Итоговая прибыль: {sell_buy * int(500 / min_price) - 500 * (min_price + max_price) / 1000 - close_fee * min_price}
+                    Итоговая прибыль: {sell_buy * int(500 / min_price) - 500 * (min_price + max_price) / 1000 - sbp_fee_corr}
                     Test Case 3 - 1000 USDT
                     Абсолютная разница: {sell_buy * int(1000 / min_price)}, Затраты на комиссию при покупке/продаже: {1000 * 2 / 1000},
-                    Итоговая прибыль: {sell_buy * int(1000 / min_price) - 1000 * (min_price + max_price) / 1000 - close_fee * min_price}
+                    Итоговая прибыль: {sell_buy * int(1000 / min_price) - 1000 * (min_price + max_price) / 1000 - sbp_fee_corr}
                     """
 
             print(msg)
@@ -126,7 +126,7 @@ class Application:
             trade_cost = 5
             trade_profit = 0
 
-            if sell_buy * int(trade_cost / min_price) - trade_cost * (min_price + max_price) / 1000 - close_fee * min_price > trade_profit:
+            if sell_buy * int(trade_cost / min_price) - trade_cost * (min_price + max_price) / 1000 - sbp_fee_corr > trade_profit:
 
                 print('МОЖНО БРАТЬ')
                 self.make_deal(min_stock, max_stock, trade_cost / min_price, min_price, max_price, coin)
