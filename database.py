@@ -301,7 +301,7 @@ class StockMarketDb(object):
                         WHERE name = '{coin}';
                         
                         INSERT INTO transaction_info(balance_id, from_stock_id, to_stock_id, network_id, coin_id)
-                        VALUES (new_balance_id, new_from_stock_id, new_to_stock_id, new_network_id, new_coin_id)
+                        VALUES (new_balance_id, new_from_stock_id, new_to_stock_id, new_network_id, new_coin_id);
                     END;
                     $$;
                 """))
