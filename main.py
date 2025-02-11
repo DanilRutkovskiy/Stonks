@@ -17,7 +17,7 @@ if __name__ == "__main__":
     #res = app.bybit_ex.get_deposit_addres('ICP', 'ICP')
     #pass
 
-    app.track_coin(['NEAR'])
+    #app.track_coin(['NEAR'])
 
     #app.bybit_ex.import_stock_data_to_db(db)
     #app.bingx_ex.import_stock_data_to_db(db)

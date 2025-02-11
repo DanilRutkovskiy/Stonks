@@ -1,4 +1,7 @@
+import asyncio
 import json
+from typing import Optional, Dict, Any
+import threading
 import websocket
 import gzip
 import io
@@ -6,48 +9,52 @@ import coin
 import database
 from Structs.network import network
 
+import logging
+logging.basicConfig(level=logging.INFO)
+
 class BingXCoinImpl(coin.Coin):
-    def __init__(self, url, channel, name):
+    def __init__(self, url: str, channel: str, name: str):
         super().__init__()
-        self.url = url
-        self.ws = None
-        self.channel = channel
-        self.current_cost = 0
-        self.commission = self.current_cost * 0.1
-        self.name = name
-        self.symbol = self.name + '-USDT'
-        self.coin_network:network
+        self.url: str = url
+        self.ws: Optional[websocket.WebSocketApp] = None
+        self.channel: str = channel
+        self.current_cost: float = 0
+        self.commission: float = self.current_cost * 0.1
+        self.name: str = name
+        self.symbol: str = self.name + '-USDT'
+        self.coin_network: network
+        self.lock = threading.Lock()
+        self.logger = logging.getLogger('logger')
 
         self._load_network_data()
 
     def _on_open(self, ws):
-        #print('WebSocket connected')
         ws.send(json.dumps(self.channel))
-        #print("Subscribed to :", subStr)
-
-    def _on_data(self, ws, string, type, continue_flag):
-        compressed_data = gzip.GzipFile(fileobj=io.BytesIO(string), mode='rb')
-        decompressed_data = compressed_data.read()
-        utf8_data = decompressed_data.decode('utf-8')
-        #print(utf8_data)
 
     def _on_message(self, ws, message):
-        compressed_data = gzip.GzipFile(fileobj=io.BytesIO(message), mode='rb')
-        decompressed_data = compressed_data.read()
-        utf8_data = decompressed_data.decode('utf-8')
+        try:
+            compressed_data = gzip.GzipFile(fileobj=io.BytesIO(message), mode='rb')
+            decompressed_data = compressed_data.read()
+            utf8_data = decompressed_data.decode('utf-8')
 
-        json_data = json.loads(utf8_data)
-        cost_string = json_data.get("data", {}).get("c")
-        if cost_string:
-            self.current_cost = float(cost_string.replace(",", "."))
-        if "ping" in utf8_data:  # this is very important , if you receive 'Ping' you need to send 'pong'
-            ws.send("Pong")
+            if "ping" in utf8_data:  # this is very important , if you receive 'Ping' you need to send 'pong'
+                ws.send("Pong")
+
+            json_data = json.loads(utf8_data)
+            cost_string = json_data.get("data", {}).get("c")
+            if cost_string:
+                with self.lock:
+                    self.current_cost = float(cost_string.replace(",", "."))
+        except json.JSONDecodeError as e:
+            print(f"Failed to parse JSON: {e}")
+        except Exception as e:
+            print(f"Unknown error:{e}")
 
     def _on_error(self, ws, error):
-        print(error)
+        self.logger.error(f"WebSocket error: {error}")
 
     def _on_close(self, ws, close_status_code, close_msg):
-        print('The connection is closed!')
+        self.logger.info(f"WebSocket closed: {close_status_code} - {close_msg}")
 
     def _load_network_data(self):
         db = database.StockMarketDb()
@@ -58,14 +65,16 @@ class BingXCoinImpl(coin.Coin):
             self.url,
             on_open=self._on_open,
             on_message=self._on_message,
-            #on_data=self._on_data,
             on_error=self._on_error,
             on_close=self._on_close,
         )
         self.ws.run_forever()
+        self.logger.info("WebSocket disconnected. Reconnecting...")
+        asyncio.sleep(5)
 
     def get_current_cost(self):
-        return float(self.current_cost)
+        with self.lock:
+            return float(self.current_cost)
 
     def get_commission(self):
         return float(self.commission)

@@ -12,17 +12,17 @@ from hashlib import sha256
 class BingXStockMarketImpl(stockmarket.StockMarket):
     def __init__(self, _api_key, _secret_key):
         super().__init__()
-        self.name = 'BingX'
+        self.name = 'BINGX'
         self.socket_url = "wss://open-api-ws.bingx.com/market"
         self.api_url = "https://open-api.bingx.com"
-        self.coin_list = []
+        self.coin_list: list = []
         self.thread_coin_list = {}
         self.is_ready = False
         self.api_key = _api_key
         self.secret_key = _secret_key
         self.timestapm = self._get_server_time()
         self.commission = 0.1
-        self.coin_map = {}
+        self.coin_map: dict = {}
 
     def convert_coin_to_db_import(self, data):
         coin_name = data["coin"]
@@ -61,9 +61,6 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
 
     def ready(self):
         return self.is_ready
-
-    def get_name(self):
-        return "BINGX"
 
     def buy(self, name, quantity):
         payload = {}
@@ -149,13 +146,13 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         data =  self._send_request(method, path, params_str, payload)
         print(data)
 
-    def withdraw(self, address, amount, coin_name, network_name):
+    def withdraw(self, address: str, amount: float, coin_name: str, network_name: str):
         payload = {}
         path = '/openApi/wallets/v1/capital/withdraw/apply'
         method = "POST"
         params_map = {
             "address": address,
-            "amount": amount,
+            "amount": str(amount),
             "coin": coin_name,
             "network": network_name,
             "timestamp": self._get_server_time(),
@@ -168,7 +165,7 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         id = json_data.get("data", {}).get("id")
         return id
 
-    def place_order(self, price, qty, symbol, side):
+    def place_order(self, price: float, qty: float, symbol: str, side: str):
         payload = {}
         path = "/openApi/spot/v1/trade/order"
         method = "POST"
@@ -190,12 +187,12 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         order_id = json_data.get("data", {}).get("orderId")
         return order_id
 
-    def cancel_order(self, symbol, order_id):
+    def cancel_order(self, symbol: str, order_id: int):
         payload = {}
         path = '/openApi/spot/v1/trade/cancel'
         method = "POST"
         params_map = {
-            "orderId": order_id,
+            "orderId": str(order_id),
             "symbol": symbol,
             "timestamp": self._get_server_time()
         }
@@ -208,9 +205,7 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         except:
             return True
 
-        return False
-
-    def get_coin_balance(self, coin):
+    def get_coin_balance(self, coin: str):
         payload = {}
         path = '/openApi/spot/v1/account/balance'
         method = "GET"
@@ -227,7 +222,7 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
 
         return -1
 
-    def get_deposit_address(self, coin, network):
+    def get_deposit_address(self, coin: str, network: str):
         payload = {}
         path = '/openApi/wallets/v1/capital/deposit/address'
         method = "GET"
@@ -247,13 +242,13 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
 
         return -1
 
-    def check_order(self, symbol, order_id):
+    def check_order(self, symbol: str, order_id: int):
         payload = {}
         path = '/openApi/spot/v1/trade/query'
         method = "GET"
         params_map = {
             "symbol": symbol,
-            "orderId": order_id,
+            "orderId": str(order_id),
             "timestamp": self._get_server_time()
         }
         #TODO Возможные ошибки - не удалось выполнить запрос к бирже(приходит JSON без data)

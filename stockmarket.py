@@ -1,50 +1,88 @@
-class StockMarket(object):
+from abc import ABC, abstractmethod
+
+class StockMarket(ABC):
     def __init__(self):
+        self.name: str = ""
+        self.coin_map: dict = {}
+        pass
+    @abstractmethod
+    def add_coin(self, name: str):
         pass
 
-    def add_coin(self, name):
+    @abstractmethod
+    def get_coin_cost(self, name: str):
         pass
 
-    def get_coin_cost(self, name):
-        pass
-
+    @abstractmethod
     def start(self):
         pass
 
-    def buy(self, name, quantity):
+    @abstractmethod
+    def buy(self, name: str, quantity):
         pass
 
-    def sell(self, name, quantity):
+    @abstractmethod
+    def sell(self, name: str, quantity):
         pass
 
+    @abstractmethod
     def get_address(self):
         pass
 
+    @abstractmethod
     def get_config(self):
         pass
 
-    def withdraw(self, adress, amount, coin, chain):
+    @abstractmethod
+    def withdraw(self, adress: str, amount: float, coin: str, network: str):
         pass
 
+    @abstractmethod
     def get_withdraw_record(self):
         pass
 
+    @abstractmethod
     def get_comission(self):
         pass
 
+    @abstractmethod
     def convert_coin_to_db_import(self, data):
         pass
 
-    def get_name(self):
-        pass
-
+    @abstractmethod
     def get_coin_list(self):
         pass
 
-    def get_coin_networks(self, coin):
+    @abstractmethod
+    def get_coin_networks(self, coin: str):
         pass
 
+    @abstractmethod
     def get_server_timestamp(self):
+        pass
+
+    @abstractmethod
+    def get_coin_network(self, name: str):
+        pass
+
+    @abstractmethod
+    def place_order(self, price: float, qty: float, symbol: str, side: str):
+        pass
+
+    @abstractmethod
+    def check_order(self, symbol: str, order_id: int):
+        pass
+
+    @abstractmethod
+    def cancel_order(self, symbol: str, order_id: int):
+        pass
+
+    @abstractmethod
+    def get_deposit_address(self, coin: str, network: str):
+        pass
+
+    @abstractmethod
+    def get_coin_balance(self, coin: str):
         pass
 
 #Проверяет, готова ли биржа к работе - прошла ли инициализация.

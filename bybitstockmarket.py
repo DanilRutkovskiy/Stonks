@@ -17,7 +17,7 @@ import time
 class ByBitStockMarketImpl(stockmarket.StockMarket):
     def __init__(self, api_key, api_secret_key):
         super().__init__()
-        self.name = 'ByBit'
+        self.name = 'BYBIT'
         self.api_key = api_key
         self.api_secret_key = api_secret_key
         self.coin_list = []
@@ -74,9 +74,6 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
             network_list = [{'chain': info['chain'], 'withdrawFee': info['withdrawFee'],
                     'depositMin': info['depositMin'], 'withdrawMin': info['withdrawMin']} for info in data['result']['rows'][0]['chains']]
             return network_list
-
-    def get_name(self):
-        return "BYBIT"
 
     def get_server_timestamp(self):
         return self.session.get_server_time()['time']
