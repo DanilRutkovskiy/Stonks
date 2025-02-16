@@ -13,11 +13,11 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 class BingXCoinImpl(coin.Coin):
-    def __init__(self, url: str, channel: str, name: str):
+    def __init__(self, url: str, channel: dict, name: str):
         super().__init__()
         self.url: str = url
         self.ws: Optional[websocket.WebSocketApp] = None
-        self.channel: str = channel
+        self.channel: dict = channel
         self.current_cost: float = 0
         self.commission: float = self.current_cost * 0.1
         self.name: str = name

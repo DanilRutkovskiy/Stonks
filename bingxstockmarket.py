@@ -20,11 +20,10 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         self.is_ready = False
         self.api_key = _api_key
         self.secret_key = _secret_key
-        self.timestapm = self._get_server_time()
         self.commission = 0.1
         self.coin_map: dict = {}
 
-    def convert_coin_to_db_import(self, data):
+    def _convert_coin_to_db_import(self, data):
         coin_name = data["coin"]
         network_list = data["networkList"]
         network_list_new = []
@@ -74,7 +73,7 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
             "newClientOrderId": "",
             "recvWindow": 1000,
             "timeInForce": "GTC",
-            "timestamp": self.timestapm
+            "timestamp": self.get_server_timestamp()
         }
         params_str = self._parse_param(params_map)
         return self._send_request(method, path, params_str, payload)
@@ -109,7 +108,7 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         else:
             return params_str + "timestamp=" + str(int(time.time() * 1000))
 
-    def _get_server_time(self):
+    def get_server_timestamp(self):
         path = '/openApi/swap/v2/server/time'
         method = "GET"
         payload = {}
@@ -119,32 +118,16 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         if server_time:
             return server_time
 
-    def get_config(self):
+    def _get_config(self):
         path = '/openApi/wallets/v1/capital/config/getall'
         method = "GET"
         payload = {}
         params_map = {
-            "timestamp": self._get_server_time()
+            "timestamp": self.get_server_timestamp()
         }
         params_str = self._parse_param(params_map)
         data = self._send_request(method, path, params_str, payload)
         return data
-
-    def get_withdraw_record(self):
-        tt = self._get_server_time()
-        payload = {}
-        path = '/openApi/api/v3/capital/withdraw/history'
-        method = "GET"
-        params_map = {
-            "coin": "BNB",
-            "endTime": self.timestapm,
-            "recvWindow": "60",
-            "startTime": int((datetime.fromtimestamp(tt / 1000) - timedelta(days=1)).timestamp() * 1000),
-            "timestamp": tt
-        }
-        params_str = self._parse_param(params_map)
-        data =  self._send_request(method, path, params_str, payload)
-        print(data)
 
     def withdraw(self, address: str, amount: float, coin_name: str, network_name: str):
         payload = {}
@@ -155,7 +138,7 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
             "amount": str(amount),
             "coin": coin_name,
             "network": network_name,
-            "timestamp": self._get_server_time(),
+            "timestamp": self.get_server_timestamp(),
             "walletType": "1"
         }
         #TODO Возможные ошибки - не удалось выполнить запрос к бирже(приходит JSON без data)
@@ -178,7 +161,7 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
             "price": round(float(price), 4),
             "recvWindow": 1000,
             "timeInForce": "GTC",
-            "timestamp": self._get_server_time()
+            "timestamp": self.get_server_timestamp()
         }
         #TODO Возможные ошибки - не удалось выполнить запрос к бирже(приходит JSON без data)
         params_str = self._parse_param(params_map)
@@ -194,7 +177,7 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         params_map = {
             "orderId": str(order_id),
             "symbol": symbol,
-            "timestamp": self._get_server_time()
+            "timestamp": self.get_server_timestamp()
         }
         params_str = self._parse_param(params_map)
         try:
@@ -211,7 +194,7 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         method = "GET"
         params_map = {
             "recvWindow": "60000",
-            "timestamp": self._get_server_time()
+            "timestamp": self.get_server_timestamp()
         }
         params_str = self._parse_param(params_map)
         data = self._send_request(method, path, params_str, payload)
@@ -231,7 +214,7 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
             "limit": "1000",
             "offset": "0",
             "recvWindow": "0",
-            "timestamp": self._get_server_time()
+            "timestamp": self.get_server_timestamp()
         }
         params_str = self._parse_param(params_map)
         data = self._send_request(method, path, params_str, payload)
@@ -249,7 +232,7 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         params_map = {
             "symbol": symbol,
             "orderId": str(order_id),
-            "timestamp": self._get_server_time()
+            "timestamp": self.get_server_timestamp()
         }
         #TODO Возможные ошибки - не удалось выполнить запрос к бирже(приходит JSON без data)
         params_str = self._parse_param(params_map)
@@ -259,11 +242,11 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         return status == "FILLED"
 
     def import_stock_data_to_db(self, db):
-        data = self.get_config()
+        data = self._get_config()
         #TODO Проверить, что data пришла корректная
         json_data = json.loads(data)
         for obj in json_data["data"]:
-            db.import_coin(self.convert_coin_to_db_import(obj), self.get_name())
+            db.import_coin(self._convert_coin_to_db_import(obj), self.name)
 
     def get_order_list(self):
         payload = {}
@@ -271,21 +254,20 @@ class BingXStockMarketImpl(stockmarket.StockMarket):
         method = "GET"
         paramsMap = {
             "symbol": "ETH-USDT",
-            "timestamp": self._get_server_time()
+            "timestamp": self.get_server_timestamp()
         }
         paramsStr = self._parse_param(paramsMap)
         return json.loads(self._send_request(method, path, paramsStr, payload))
 
 
     def get_acc_balance(self):
-
         payload = {}
         path = '/openApi/account/v1/allAccountBalance'
         method = "GET"
         paramsMap = {
             "accountType": "sopt",
             "recvWindow": "6000",
-            "timestamp": self._get_server_time()
+            "timestamp": self.get_server_timestamp()
         }
         paramsStr = self._parse_param(paramsMap)
         data = self._send_request(method, path, paramsStr, payload)

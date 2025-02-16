@@ -18,43 +18,7 @@ class StockMarket(ABC):
         pass
 
     @abstractmethod
-    def buy(self, name: str, quantity):
-        pass
-
-    @abstractmethod
-    def sell(self, name: str, quantity):
-        pass
-
-    @abstractmethod
-    def get_address(self):
-        pass
-
-    @abstractmethod
-    def get_config(self):
-        pass
-
-    @abstractmethod
     def withdraw(self, adress: str, amount: float, coin: str, network: str):
-        pass
-
-    @abstractmethod
-    def get_withdraw_record(self):
-        pass
-
-    @abstractmethod
-    def get_comission(self):
-        pass
-
-    @abstractmethod
-    def convert_coin_to_db_import(self, data):
-        pass
-
-    @abstractmethod
-    def get_coin_list(self):
-        pass
-
-    @abstractmethod
-    def get_coin_networks(self, coin: str):
         pass
 
     @abstractmethod

@@ -3,9 +3,7 @@ import logging
 from typing import Optional
 from concurrent.futures import ThreadPoolExecutor
 from stockmarket import StockMarket
-from time import sleep
 import time
-import math
 
 import bybitstockmarket, bingxstockmarket
 import database
@@ -38,17 +36,17 @@ class Application:
         self.bingx_ex = bingxstockmarket.BingXStockMarketImpl(self.bing_x_api_key, self.bing_x_secret_key)
         self.stock_ex_pool.append(self.bingx_ex)
 
-    def track_coin(self, coin):
-        with ThreadPoolExecutor() as executor:
-            for stock in self.stock_ex_pool:
-                executor.submit(self._start_stock_tracking, stock, coin)
+    def track_coin(self, coin: str):
+        for stock in self.stock_ex_pool:
+            stock_thread = threading.Thread(target=self._start_stock_tracking, args=(stock, coin,), name=stock.name + " Thread", daemon=True)
+            stock_thread.start()
 
             #sleep(1) - пока убрал, хз зачем делали. Может надо будет вернуть
 
         self.show_spot_dif()
 
     @staticmethod
-    def _start_stock_tracking(self, stock: StockMarket, coin: str):
+    def _start_stock_tracking(stock: StockMarket, coin: str):
         stock.add_coin(coin)
         stock.start()
         logger.info(f"Started tracking {coin} on {stock.name}")
@@ -141,7 +139,7 @@ class Application:
         min_stock.withdraw(address, amount, coin, network.name)
 
         while float(max_stock.get_coin_balance(coin)) < float(amount):
-            sleep(5)
+            time.sleep(5)
         #TODO - TEST FROM HERE :)
         order_id_sell = max_stock.place_order(max_price, amount, max_stock.coin_map[coin].symbol, 'SELL')
 

@@ -50,7 +50,7 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
         for coin_thread in self.thread_coin_list.values():
             coin_thread.join()
 
-    def get_coin_list(self):
+    def _get_coin_list(self):
         params = {
             "category": "spot"  # Для спотового рынка
         }
@@ -68,7 +68,7 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
         except requests.RequestException as e:
             print(f"Request failed: {e}")
 
-    def get_coin_networks(self, coin):
+    def _get_coin_networks(self, coin):
         data = self.session.get_coin_info(coin=coin)
         if len(data['result']['rows']) > 0:
             network_list = [{'chain': info['chain'], 'withdrawFee': info['withdrawFee'],
@@ -111,11 +111,11 @@ class ByBitStockMarketImpl(stockmarket.StockMarket):
     
     def import_stock_data_to_db(self, db):
         self.create_session()
-        self.get_coin_list()
+        self._get_coin_list()
         for coin in self.coin_full_list['alias']:
-            coin_data = self.get_coin_networks(coin)
+            coin_data = self._get_coin_networks(coin)
             if coin_data != None:
-                db.import_coin({coin: coin_data}, self.get_name())
+                db.import_coin({coin: coin_data}, self.name)
 
     def place_order(self, price, qty, symbol, side):
 
