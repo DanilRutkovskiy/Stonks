@@ -42,7 +42,7 @@ class Application:
             stock_thread.start()
 
             #sleep(1) - пока убрал, хз зачем делали. Может надо будет вернуть
-
+        time.sleep(10)
         self.show_spot_dif()
 
     @staticmethod
